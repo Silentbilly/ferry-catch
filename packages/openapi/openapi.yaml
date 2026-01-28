@@ -1,0 +1,217 @@
+openapi: 3.0.3
+info:
+  title: FerryCatch API
+  version: 0.0.1
+  description: Aggregates Istanbul ferry schedules and provides next departure and timetables.
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Ferry
+    description: Ferry schedule endpoints
+
+paths:
+  /api/v1/routes:
+    get:
+      tags: [ Ferry ]
+      operationId: listRoutes
+      summary: List available routes
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Kınalıada"
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Bostancı"
+        - name: operator
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Mavi Marmara"
+      responses:
+        "200":
+          description: Routes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RouteDto"
+
+  /api/v1/timetable:
+    get:
+      tags: [ Ferry ]
+      operationId: getTimetable
+      summary: Get timetable for a route (full stop sequence per trip)
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Kınalıada"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Bostancı"
+        - name: operator
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Şehir Hatları"
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          example: "2026-01-27"
+      responses:
+        "200":
+          description: Timetable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableResponse"
+
+  /api/v1/next:
+    get:
+      tags: [ Ferry ]
+      operationId: getNextDeparture
+      summary: Get next departure for a route at a given time
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Kınalıada"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "Bostancı"
+        - name: operator
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Mavi Marmara"
+        - name: at
+          in: query
+          required: false
+          description: ISO-8601 date-time (defaults to now)
+          schema:
+            type: string
+            format: date-time
+          example: "2026-01-27T21:00:00+03:00"
+      responses:
+        "200":
+          description: Next departure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NextResponse"
+
+components:
+  schemas:
+    RouteDto:
+      type: object
+      required: [ id, from, to, operator ]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        from:
+          type: string
+          example: "Kınalıada"
+        to:
+          type: string
+          example: "Bostancı"
+        operator:
+          type: string
+          example: "Mavi Marmara"
+
+    StopDto:
+      type: object
+      required: [ stopName, sequence, time ]
+      properties:
+        stopName:
+          type: string
+          example: "Kınalıada"
+        sequence:
+          type: integer
+          format: int32
+          example: 1
+        time:
+          type: string
+          format: date-time
+          example: "2026-01-27T21:30:00+03:00"
+
+    TripDto:
+      type: object
+      required: [ tripId, operator, from, to, departureTime, arrivalTime, stops ]
+      properties:
+        tripId:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        operator:
+          type: string
+          example: "Şehir Hatları"
+        from:
+          type: string
+          example: "Kınalıada"
+        to:
+          type: string
+          example: "Kadıköy"
+        departureTime:
+          type: string
+          format: date-time
+          example: "2026-01-27T21:30:00+03:00"
+        arrivalTime:
+          type: string
+          format: date-time
+          example: "2026-01-27T22:25:00+03:00"
+        stops:
+          type: array
+          items:
+            $ref: "#/components/schemas/StopDto"
+
+    NextResponse:
+      type: object
+      required: [ trip, minutesUntil ]
+      properties:
+        trip:
+        $ref: "#/components/schemas/TripDto"
+      minutesUntil:
+        type: integer
+        format: int32
+        example: 30
+
+    TimetableResponse:
+      type: object
+      required: [ route, date, trips ]
+      properties:
+        route:
+          $ref: "#/components/schemas/RouteDto"
+        date:
+          type: string
+          format: date
+          example: "2026-01-27"
+        trips:
+          type: array
+          items:
+            $ref: "#/components/schemas/TripDto"

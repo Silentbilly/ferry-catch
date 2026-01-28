@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: ferrycatch-db
+    environment:
+      POSTGRES_DB: ferrycatch
+      POSTGRES_USER: ferry
+      POSTGRES_PASSWORD: ferry123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ferrycatch_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ferry -d ferrycatch"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  ferrycatch_pgdata:
