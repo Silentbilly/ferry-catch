@@ -1,5 +1,6 @@
 package com.ferrycatch.api.controllers;
 
+import com.ferrycatch.api.dto.FerryDtos;
 import com.ferrycatch.api.dto.FerryDtos.RouteDto;
 import com.ferrycatch.api.service.MockScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +30,7 @@ public class RoutesController {
             description = "Returns available routes. Optional filters: from, to, operator."
     )
     @GetMapping("/routes")
-    public List<RouteDto> routes(
+    public List<FerryDtos.RouteWithNextDto> routes(
             @Parameter(description = "Start stop name/code (optional)", example = "Kınalıada")
             @RequestParam(required = false) String from,
 
@@ -39,6 +40,6 @@ public class RoutesController {
             @Parameter(description = "Ferry operator (optional)")
             @RequestParam(required = false) String operator
     ) {
-        return scheduleService.listRoutes(from, to, operator);
+        return scheduleService.listRoutesWithNext(from, to, operator);
     }
 }

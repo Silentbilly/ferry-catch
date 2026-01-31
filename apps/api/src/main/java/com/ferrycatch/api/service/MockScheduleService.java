@@ -28,8 +28,8 @@ public class MockScheduleService {
                 op,
                 from,
                 to,
-                depFrom.toString(),
-                arrivalTime.toString(),
+                depFrom.toOffsetDateTime().toString(),
+                arrivalTime.toOffsetDateTime().toString(),
                 stops
         );
     }
@@ -58,8 +58,8 @@ public class MockScheduleService {
                 op,
                 from,
                 to,
-                departure.toString(),
-                arrivalTime.toString(),
+                departure.toOffsetDateTime().toString(),
+                arrivalTime.toOffsetDateTime().toString(),
                 stops
         );
     }
@@ -119,5 +119,28 @@ public class MockScheduleService {
                 .filter(r -> to == null || to.isBlank() || r.to().equalsIgnoreCase(to))
                 .filter(r -> operator == null || operator.isBlank() || r.operator().equalsIgnoreCase(operator))
                 .toList();
+    }
+
+    public List<FerryDtos.RouteWithNextDto> listRoutesWithNext(String from, String to, String operator) {
+        var now = ZonedDateTime.now(ISTANBUL);
+
+        var base = listRoutes(from, to, operator);
+
+        return base.stream().map(r -> {
+            var trip = nextTrip(r.from(), r.to(), r.operator(), now);
+
+            var minutes = (int) java.time.Duration
+                    .between(now, ZonedDateTime.parse(trip.departureTime()))
+                    .toMinutes();
+
+            return new FerryDtos.RouteWithNextDto(
+                    r.id(),
+                    r.from(),
+                    r.to(),
+                    r.operator(),
+                    minutes,
+                    trip.departureTime()
+            );
+        }).toList();
     }
 }

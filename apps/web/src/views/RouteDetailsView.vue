@@ -2,6 +2,8 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { NextResponse, TimetableResponse } from '../api/types'
+import { getNextDeparture, getTimetable } from '../api'
+import { ApiError } from '../api/client'
 
 const route = useRoute()
 
@@ -14,26 +16,42 @@ const timetable = ref<TimetableResponse | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
+function buildQuery() {
+  const op = operator.value.trim()
+  return {
+    from: from.value,
+    to: to.value,
+    operator: op ? op : undefined,
+  }
+}
+
 async function load() {
   if (!from.value || !to.value) return
 
   loading.value = true
   error.value = null
-  try {
-    const q = new URLSearchParams({ from: from.value, to: to.value, operator: operator.value })
 
-    const [nextRes, ttRes] = await Promise.all([
-      fetch(`/api/v1/next?${q}`),
-      fetch(`/api/v1/timetable?${q}`),
+  try {
+    const q = buildQuery()
+
+    const [next, tt] = await Promise.all([
+      getNextDeparture(q),
+      getTimetable(q),
     ])
 
-    if (!nextRes.ok) throw new Error(`NEXT HTTP ${nextRes.status}`)
-    if (!ttRes.ok) throw new Error(`TT HTTP ${ttRes.status}`)
+    nextData.value = next
+    timetable.value = tt
+  } catch (e: unknown) {
+    if (e instanceof ApiError) {
+      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
+    } else if (e instanceof Error) {
+      error.value = e.message
+    } else {
+      error.value = 'Failed to load data'
+    }
 
-    nextData.value = await nextRes.json()
-    timetable.value = await ttRes.json()
-  } catch (e: any) {
-    error.value = e?.message ?? 'Failed to load data'
+    nextData.value = null
+    timetable.value = null
   } finally {
     loading.value = false
   }
@@ -46,7 +64,7 @@ watch(() => route.query, load)
 <template>
   <main style="max-width: 520px; margin: 0 auto; padding: 16px;">
     <h1>{{ from }} → {{ to }}</h1>
-    <p style="opacity:.7">{{ operator }}</p>
+    <p style="opacity:.7" v-if="operator">{{ operator }}</p>
 
     <p v-if="loading">Loading…</p>
     <p v-else-if="error">{{ error }}</p>

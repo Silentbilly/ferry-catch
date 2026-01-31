@@ -28,4 +28,13 @@ public final class FerryDtos {
             String to,
             String operator
     ) {}
+
+    public record RouteWithNextDto(
+            UUID id,
+            String from,
+            String to,
+            String operator,
+            Integer nextMinutesUntil,
+            String nextDepartureTime
+    ) {}
 }

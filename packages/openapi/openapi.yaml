@@ -42,8 +42,7 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: "#/components/schemas/RouteDto"
+                items: RouteWithNextDto
 
   /api/v1/timetable:
     get:
@@ -143,6 +142,20 @@ components:
         operator:
           type: string
           example: "Mavi Marmara"
+
+    RouteWithNextDto:
+      allOf:
+        - $ref: "#/components/schemas/RouteDto"
+        - type: object
+          properties:
+            nextMinutesUntil:
+              type: integer
+              format: int32
+              example: 15
+            nextDepartureTime:
+              type: string
+              format: date-time
+              example: "2026-01-31T21:40:00+03:00"
 
     StopDto:
       type: object

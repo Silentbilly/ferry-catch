@@ -5,10 +5,15 @@ export type RouteDto = {
   operator: string
 }
 
+export type RouteWithNextDto = RouteDto & {
+  nextMinutesUntil?: number | null
+  nextDepartureTime?: string | null // ISO-8601 date-time string
+}
+
 export type StopDto = {
   stopName: string
   sequence: number
-  time: string
+  time: string // ISO-8601 date-time string
 }
 
 export type TripDto = {
@@ -16,8 +21,8 @@ export type TripDto = {
   operator: string
   from: string
   to: string
-  departureTime: string
-  arrivalTime: string
+  departureTime: string // ISO-8601 date-time string
+  arrivalTime: string // ISO-8601 date-time string
   stops: StopDto[]
 }
 
@@ -28,6 +33,6 @@ export type NextResponse = {
 
 export type TimetableResponse = {
   route: RouteDto
-  date: string
+  date: string // yyyy-MM-dd
   trips: TripDto[]
 }
