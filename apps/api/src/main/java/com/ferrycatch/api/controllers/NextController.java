@@ -2,13 +2,16 @@ package com.ferrycatch.api.controllers;
 
 import com.ferrycatch.api.dto.FerryDtos.TripDto;
 import com.ferrycatch.api.service.MockScheduleService;
+import com.ferrycatch.api.service.NextDepartureService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.ZoneId;
@@ -19,11 +22,10 @@ import java.time.ZonedDateTime;
 @RequestMapping("/api/v1")
 public class NextController {
 
-    private static final ZoneId ISTANBUL = ZoneId.of("Europe/Istanbul");
-    private final MockScheduleService scheduleService;
+    private final NextDepartureService nextService;
 
-    public NextController(MockScheduleService scheduleService) {
-        this.scheduleService = scheduleService;
+    public NextController(NextDepartureService nextService) {
+        this.nextService = nextService;
     }
 
     @Operation(
@@ -40,11 +42,9 @@ public class NextController {
             @Parameter(description = "Ferry operator (e.g., Mavi Marmara, Şehir Hatları)")
             @RequestParam(required = false) String operator
     ) {
-        var now = ZonedDateTime.now(ISTANBUL);
-        TripDto trip = scheduleService.nextTrip(from, to, operator, now);
-        var dep = ZonedDateTime.parse(trip.departureTime());
-
-        return new NextResponse(trip, (int) Duration.between(now, dep).toMinutes());
+        TripDto trip = nextService.getNextTrip(from, to, operator);
+        if (trip == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No upcoming trips"); // [web:1253]
+        return new NextResponse(trip, nextService.minutesUntil(trip));
     }
 
     public record NextResponse(TripDto trip, int minutesUntil) {}

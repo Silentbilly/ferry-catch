@@ -18,14 +18,14 @@ public class RouteRepository {
 
     public List<RouteRow> listRoutes(String from, String to, String operator) {
         var sql = """
-      SELECT r.id, r."from", r."to", o.name AS operator
-      FROM routes r
-      JOIN operators o ON o.id = r.operator_id
-      WHERE (:from IS NULL OR r."from" = :from)
-        AND (:to IS NULL OR r."to" = :to)
-        AND (:operator IS NULL OR o.name = :operator)
-      ORDER BY r."from", r."to", o.name
-    """;
+                    SELECT r.id, r."from", r."to", o.name AS operator
+                    FROM routes r
+                    JOIN operators o ON o.id = r.operator_id
+                    WHERE (:from IS NULL OR r."from" = :from)
+                      AND (:to IS NULL OR r."to" = :to)
+                      AND (:operator IS NULL OR o.name = :operator)
+                    ORDER BY r."from", r."to", o.name
+                """;
 
         var params = new MapSqlParameterSource()
                 .addValue("from", blankToNull(from))

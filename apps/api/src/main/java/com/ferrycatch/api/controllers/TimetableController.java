@@ -2,6 +2,7 @@ package com.ferrycatch.api.controllers;
 
 import com.ferrycatch.api.dto.FerryDtos.TripDto;
 import com.ferrycatch.api.service.MockScheduleService;
+import com.ferrycatch.api.service.TimetableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @Tag(name = "Timetable API", description = "Timetable endpoints")
@@ -22,10 +24,11 @@ import java.util.List;
 public class TimetableController {
 
     private static final ZoneId ISTANBUL = ZoneId.of("Europe/Istanbul");
-    private final MockScheduleService scheduleService;
 
-    public TimetableController(MockScheduleService scheduleService) {
-        this.scheduleService = scheduleService;
+    private final TimetableService timetableService;
+
+    public TimetableController(TimetableService timetableService) {
+        this.timetableService = timetableService;
     }
 
     @Operation(
@@ -46,21 +49,9 @@ public class TimetableController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         var d = (date == null) ? LocalDate.now(ISTANBUL) : date;
-
-        var dayStart = ZonedDateTime.now(ISTANBUL)
-                .withYear(d.getYear()).withMonth(d.getMonthValue()).withDayOfMonth(d.getDayOfMonth())
-                .withHour(6).withMinute(30).withSecond(0).withNano(0);
-
-        List<TripDto> trips = scheduleService.timetableTrips(from, to, operator, dayStart);
-
-        return new TimetableResponse(
-                new RouteDto("00000000-0000-0000-0000-000000000001", from, to,
-                        operator == null || operator.isBlank() ? "Mavi Marmara" : operator),
-                d.toString(),
-                trips
-        );
+        return timetableService.getTimetable(from, to, operator, d);
     }
 
-    public record RouteDto(String id, String from, String to, String operator) {}
+    public record RouteDto(UUID id, String from, String to, String operator) {}
     public record TimetableResponse(RouteDto route, String date, List<TripDto> trips) {}
 }

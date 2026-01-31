@@ -3,6 +3,7 @@ package com.ferrycatch.api.controllers;
 import com.ferrycatch.api.dto.FerryDtos;
 import com.ferrycatch.api.dto.FerryDtos.RouteDto;
 import com.ferrycatch.api.service.MockScheduleService;
+import com.ferrycatch.api.service.RouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,10 +19,10 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class RoutesController {
 
-    private final MockScheduleService scheduleService;
+    private final RouteService routeService;
 
-    public RoutesController(MockScheduleService scheduleService) {
-        this.scheduleService = scheduleService;
+    public RoutesController(RouteService routeService) {
+        this.routeService = routeService;
     }
 
     @Operation(
@@ -33,13 +34,11 @@ public class RoutesController {
     public List<FerryDtos.RouteWithNextDto> routes(
             @Parameter(description = "Start stop name/code (optional)", example = "Kınalıada")
             @RequestParam(required = false) String from,
-
             @Parameter(description = "Destination stop name/code (optional)", example = "Bostancı")
             @RequestParam(required = false) String to,
-
             @Parameter(description = "Ferry operator (optional)")
             @RequestParam(required = false) String operator
     ) {
-        return scheduleService.listRoutesWithNext(from, to, operator);
+        return routeService.listRoutesWithNext(from, to, operator);
     }
 }

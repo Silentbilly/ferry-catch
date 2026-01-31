@@ -1,5 +1,3 @@
--- src/main/resources/db/migration/V1__init.sql
-
 -- UUID генератор (gen_random_uuid)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 

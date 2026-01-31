@@ -1,15 +1,12 @@
 package com.ferrycatch.api.service;
 
-import com.ferrycatch.api.controllers.NextController;
 import com.ferrycatch.api.db.repo.StopTimeRepository;
 import com.ferrycatch.api.db.repo.TripRepository;
 import com.ferrycatch.api.dto.FerryDtos;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.stream.Collectors;
 
 @Service
 public class NextDepartureService {
@@ -21,18 +18,16 @@ public class NextDepartureService {
         this.stopRepo = stopRepo;
     }
 
-    public ResponseEntity<NextController.NextResponse> getNext(String from, String to, String operatorOrNull) {
-        var trips = tripRepo.findNextTrips(from, to, operatorOrNull, 2); // next + next-next
-        if (trips.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public FerryDtos.TripDto getNextTrip(String from, String to, String operatorOrNull) {
+        var trips = tripRepo.findNextTrips(from, to, operatorOrNull, 2);
+        if (trips.isEmpty()) return null;
 
         var t = trips.get(0);
         var stops = stopRepo.findByTripId(t.tripId()).stream()
                 .map(s -> new FerryDtos.StopDto(s.stopName(), s.stopSequence(), s.time().toString()))
-                .collect(Collectors.toList());
+                .toList();
 
-        var tripDto = new FerryDtos.TripDto(
+        return new FerryDtos.TripDto(
                 t.tripId(),
                 t.operator(),
                 t.from(),
@@ -41,8 +36,10 @@ public class NextDepartureService {
                 t.arrivalTime().toString(),
                 stops
         );
+    }
 
-        var minutesUntil = (int) Math.max(0, Duration.between(OffsetDateTime.now(), t.departureTime()).toMinutes());
-
-        return ResponseEntity.ok(new NextController.NextResponse(tripDto, minutesUntil));    }
+    public int minutesUntil(FerryDtos.TripDto trip) {
+        var dep = OffsetDateTime.parse(trip.departureTime());
+        return (int) Math.max(0, Duration.between(OffsetDateTime.now(), dep).toMinutes());
+    }
 }

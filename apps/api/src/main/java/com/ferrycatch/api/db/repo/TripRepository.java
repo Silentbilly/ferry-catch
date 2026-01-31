@@ -40,7 +40,7 @@ public class TripRepository {
         var params = new MapSqlParameterSource()
                 .addValue("from", from)
                 .addValue("to", to)
-                .addValue("operator", operatorOrNull)
+                .addValue("operator", blankToNull(operatorOrNull))
                 .addValue("limit", limit);
 
         return jdbc.query(sql, params, (rs, i) -> new TripRow(
@@ -75,7 +75,7 @@ public class TripRepository {
         var params = new MapSqlParameterSource()
                 .addValue("from", from)
                 .addValue("to", to)
-                .addValue("operator", operatorOrNull)
+                .addValue("operator", blankToNull(operatorOrNull))
                 .addValue("date", date);
 
         return jdbc.query(sql, params, (rs, i) -> new TripRow(
@@ -86,5 +86,11 @@ public class TripRepository {
                 rs.getObject("departure_time", java.time.OffsetDateTime.class),
                 rs.getObject("arrival_time", java.time.OffsetDateTime.class)
         ));
+    }
+
+    private static String blankToNull(String s) {
+        if (s == null) return null;
+        var t = s.trim();
+        return t.isEmpty() ? null : t;
     }
 }
