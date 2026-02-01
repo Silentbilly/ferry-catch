@@ -16,15 +16,19 @@ public class StopTimeRepository {
         this.jdbc = jdbc;
     }
 
-    public List<StopTimeRow> findByTripId(UUID tripId) {
+    public List<StopTimeRow> findSegmentByTripId(UUID tripId, int fromSeq, int toSeq) {
         var sql = """
                   SELECT stop_sequence, stop_name, time
                   FROM stop_times
                   WHERE trip_id = :tripId
+                    AND stop_sequence BETWEEN :fromSeq AND :toSeq
                   ORDER BY stop_sequence
                 """;
 
-        var params = new MapSqlParameterSource().addValue("tripId", tripId);
+        var params = new MapSqlParameterSource()
+                .addValue("tripId", tripId)
+                .addValue("fromSeq", fromSeq)
+                .addValue("toSeq", toSeq);
 
         return jdbc.query(sql, params, (rs, i) -> new StopTimeRow(
                 rs.getInt("stop_sequence"),
@@ -32,4 +36,5 @@ public class StopTimeRepository {
                 rs.getObject("time", java.time.OffsetDateTime.class)
         ));
     }
+
 }

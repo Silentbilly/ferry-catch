@@ -1,6 +1,7 @@
 package com.ferrycatch.api.db.repo;
 
 import com.ferrycatch.api.db.record.RouteRow;
+import com.ferrycatch.api.dto.FerryDtos;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -45,4 +46,21 @@ public class RouteRepository {
         var t = s.trim();
         return t.isEmpty() ? null : t;
     }
+
+    public List<FerryDtos.RouteDto> listAll() {
+        var sql = """
+      SELECT r.id, r."from", r."to", o.name AS operator
+      FROM routes r
+      JOIN operators o ON o.id = r.operator_id
+      ORDER BY o.name, r."from", r."to"
+    """;
+
+        return jdbc.query(sql, new MapSqlParameterSource(), (rs, i) -> new FerryDtos.RouteDto(
+                UUID.fromString(rs.getString("id")),
+                rs.getString("from"),
+                rs.getString("to"),
+                rs.getString("operator")
+        ));
+    }
+
 }

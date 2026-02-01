@@ -36,9 +36,9 @@ public class RouteWithNextRepository {
                     ORDER BY t.departure_time
                     LIMIT 1
                   ) nt ON true
-                  WHERE (:from IS NULL OR r."from" = :from)
-                    AND (:to IS NULL OR r."to" = :to)
-                    AND (:operator IS NULL OR o.name = :operator)
+                  WHERE (CAST(:from AS text) IS NULL OR r."from" = CAST(:from AS text))
+                    AND (CAST(:to AS text) IS NULL OR r."to" = CAST(:to AS text))
+                    AND (CAST(:operator AS text) IS NULL OR o.name = CAST(:operator AS text))
                   ORDER BY r."from", r."to", o.name
                 """;
 

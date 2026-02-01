@@ -18,23 +18,30 @@ public class NextDepartureService {
         this.stopRepo = stopRepo;
     }
 
+    /**
+     * Returns TripDto for the requested segment (from->to):
+     * - departureTime/arrivalTime are segment times (at from/to stops)
+     * - stops are only between from and to (inclusive)
+     */
     public FerryDtos.TripDto getNextTrip(String from, String to, String operatorOrNull) {
-        var trips = tripRepo.findNextTrips(from, to, operatorOrNull, 2);
-        if (trips.isEmpty()) return null;
+        var segs = tripRepo.findNextTripSegments(from, to, operatorOrNull, 2);
+        if (segs.isEmpty()) return null;
 
-        var t = trips.get(0);
-        var stops = stopRepo.findByTripId(t.tripId()).stream()
-                .map(s -> new FerryDtos.StopDto(s.stopName(), s.stopSequence(), s.time().toString()))
+        var s = segs.get(0);
+
+        var segStops = stopRepo.findSegmentByTripId(s.tripId(), s.fromSeq(), s.toSeq()).stream()
+                .map(st -> new FerryDtos.StopDto(st.stopName(), st.stopSequence(), st.time().toString()))
                 .toList();
 
+        // Note: TripDto.from/to = user's selected from/to (segment), not route endpoints.
         return new FerryDtos.TripDto(
-                t.tripId(),
-                t.operator(),
-                t.from(),
-                t.to(),
-                t.departureTime().toString(),
-                t.arrivalTime().toString(),
-                stops
+                s.tripId(),
+                s.operator(),
+                from,
+                to,
+                s.segmentDepartureTime().toString(),
+                s.segmentArrivalTime().toString(),
+                segStops
         );
     }
 

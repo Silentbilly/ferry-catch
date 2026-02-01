@@ -1,20 +1,14 @@
 package com.ferrycatch.api.controllers;
 
 import com.ferrycatch.api.dto.FerryDtos;
-import com.ferrycatch.api.dto.FerryDtos.RouteDto;
-import com.ferrycatch.api.service.MockScheduleService;
 import com.ferrycatch.api.service.RouteService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Routes API", description = "Available routes")
+@Tag(name = "Routes API", description = "Route patterns (not segments)")
 @RestController
 @RequestMapping("/api/v1")
 public class RoutesController {
@@ -26,19 +20,12 @@ public class RoutesController {
     }
 
     @Operation(
-            operationId = "listRoutes",
-            summary = "List available routes",
-            description = "Returns available routes. Optional filters: from, to, operator."
+            operationId = "listRoutePatterns",
+            summary = "List route patterns",
+            description = "Returns route patterns. Use /search for from/to segment lookup."
     )
     @GetMapping("/routes")
-    public List<FerryDtos.RouteWithNextDto> routes(
-            @Parameter(description = "Start stop name/code (optional)", example = "Kınalıada")
-            @RequestParam(required = false) String from,
-            @Parameter(description = "Destination stop name/code (optional)", example = "Bostancı")
-            @RequestParam(required = false) String to,
-            @Parameter(description = "Ferry operator (optional)")
-            @RequestParam(required = false) String operator
-    ) {
-        return routeService.listRoutesWithNext(from, to, operator);
+    public List<FerryDtos.RouteDto> routes() {
+        return routeService.listAllRoutes();
     }
 }

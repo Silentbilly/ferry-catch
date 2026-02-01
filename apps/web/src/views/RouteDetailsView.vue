@@ -1,97 +1,109 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import type { NextResponse, TimetableResponse } from '../api/types'
-import { getNextDeparture, getTimetable } from '../api'
-import { ApiError } from '../api/client'
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import type { TimetableResponse, SearchResponse } from "../api/types";
+import { getTimetable, searchNext } from "../api";
+import { ApiError } from "../api/client";
 
-const route = useRoute()
+const route = useRoute();
 
-const from = computed(() => String(route.query.from ?? ''))
-const to = computed(() => String(route.query.to ?? ''))
-const operator = computed(() => String(route.query.operator ?? ''))
+const from = computed(() => String(route.query.from ?? ""));
+const to = computed(() => String(route.query.to ?? ""));
 
-const nextData = ref<NextResponse | null>(null)
-const timetable = ref<TimetableResponse | null>(null)
-const loading = ref(false)
-const error = ref<string | null>(null)
+const nextData = ref<SearchResponse | null>(null);
+const timetable = ref<TimetableResponse | null>(null);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+function formatHHmm(iso?: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 function buildQuery() {
-  const op = operator.value.trim()
   return {
     from: from.value,
     to: to.value,
-    operator: op ? op : undefined,
-  }
+  };
 }
 
 async function load() {
-  if (!from.value || !to.value) return
+  if (!from.value || !to.value) return;
 
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    const q = buildQuery()
+    const q = buildQuery();
 
     const [next, tt] = await Promise.all([
-      getNextDeparture(q),
+      searchNext(q),
       getTimetable(q),
-    ])
+    ]);
 
-    nextData.value = next
-    timetable.value = tt
+    nextData.value = next;
+    timetable.value = tt;
   } catch (e: unknown) {
     if (e instanceof ApiError) {
-      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
+      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
     } else if (e instanceof Error) {
-      error.value = e.message
+      error.value = e.message;
     } else {
-      error.value = 'Failed to load data'
+      error.value = "Failed to load data";
     }
 
-    nextData.value = null
-    timetable.value = null
+    nextData.value = null;
+    timetable.value = null;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
-onMounted(load)
-watch(() => route.query, load)
+onMounted(load);
+watch(
+  () => [route.query.from, route.query.to, route.query.operator],
+  load
+);
 </script>
 
 <template>
-  <main style="max-width: 520px; margin: 0 auto; padding: 16px;">
+  <main style="max-width: 520px; margin: 0 auto; padding: 16px">
     <h1>{{ from }} → {{ to }}</h1>
-    <p style="opacity:.7" v-if="operator">{{ operator }}</p>
 
     <p v-if="loading">Loading…</p>
     <p v-else-if="error">{{ error }}</p>
 
     <section v-else>
-      <h2>Next</h2>
-      <div v-if="nextData" style="padding: 12px; border: 1px solid #ddd; border-radius: 12px;">
+      <h2>Next ferry</h2>
+      <div
+        v-if="nextData"
+        style="padding: 12px; border: 1px solid #ddd; border-radius: 12px"
+      >
         <div><b>In:</b> {{ nextData.minutesUntil }} min</div>
-        <div><b>Dep:</b> {{ nextData.trip.departureTime }}</div>
-        <div><b>Arr:</b> {{ nextData.trip.arrivalTime }}</div>
+        <div><b>Dep:</b> {{ formatHHmm(nextData.trip.departureTime) }} ({{ nextData.trip.departureTime }})</div>
+        <div><b>Arr:</b> {{ formatHHmm(nextData.trip.arrivalTime) }} ({{ nextData.trip.arrivalTime }})</div>        
+        <div><b>Operator:</b> {{ nextData.trip.operator }} </div>
 
-        <ol style="margin-top: 10px;">
+        <ol style="margin-top: 10px">
           <li v-for="s in nextData.trip.stops" :key="s.sequence">
-            {{ s.sequence }}. {{ s.stopName }} — {{ s.time }}
+            {{ s.stopName }} — {{ formatHHmm(s.time) }}  —  {{ s.sequence }} stop
           </li>
         </ol>
       </div>
 
-      <h2 style="margin-top: 18px;">Timetable ({{ timetable?.date }})</h2>
-      <div v-if="timetable" style="display: grid; gap: 12px;">
+      <h2 style="margin-top: 18px">Timetable ({{ timetable?.date }})</h2>
+      <div v-if="timetable" style="display: grid; gap: 12px">
         <div
           v-for="t in timetable.trips"
           :key="t.tripId"
-          style="padding: 12px; border: 1px solid #eee; border-radius: 12px;"
+          style="padding: 12px; border: 1px solid #eee; border-radius: 12px"
         >
-          <div style="font-weight:600">{{ t.departureTime }} → {{ t.arrivalTime }}</div>
-          <div style="opacity:.7; font-size: 13px;">Trip: {{ t.tripId }}</div>
+          <div style="font-weight: 600">
+            {{ formatHHmm(t.departureTime) }} → {{ formatHHmm(t.arrivalTime) }}
+          </div>
+          <div style="opacity: 0.7; font-size: 13px"> {{ t.operator }}</div>
         </div>
       </div>
     </section>

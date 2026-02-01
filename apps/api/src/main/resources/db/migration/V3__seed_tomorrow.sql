@@ -1,3 +1,4 @@
+-- session-local for this migration
 SET TIME ZONE 'Europe/Istanbul';
 
 DO $$

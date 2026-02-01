@@ -1,180 +1,144 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import type { RouteWithNextDto } from '../api/types'
-import { listRoutes } from '../api'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ApiError } from '../api/client'
+import { listStops, searchNext } from '../api'
+import type { SearchResponse } from '../api/types'
 
 const router = useRouter()
+const route = useRoute()
 
-const routes = ref<RouteWithNextDto[]>([])
-const loading = ref(false)
+const operator = ref<string>('Mavi Marmara') // пока фикс; позже можно загрузить /operators
+const stops = ref<string[]>([])
+const from = ref<string>(String(route.query.from ?? ''))
+const to = ref<string>(String(route.query.to ?? ''))
+
+const loadingStops = ref(false)
+const loadingSearch = ref(false)
 const error = ref<string | null>(null)
+const result = ref<SearchResponse | null>(null)
 
 function formatHHmm(iso?: string | null): string {
   if (!iso) return ''
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) // HH:MM [web:799]
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-function etaText(r: RouteWithNextDto): string {
-  const m = r.nextMinutesUntil
-  const t = formatHHmm(r.nextDepartureTime)
-  if (m == null && !t) return ''
-  if (m == null) return t
-  if (!t) return `${m}m`
-  return `${m}m · ${t}`
-}
+const canSearch = computed(() => from.value && to.value && from.value !== to.value)
 
-function etaClass(r: RouteWithNextDto): string {
-  const m = r.nextMinutesUntil
-  if (m == null) return 'eta eta--unknown'
-  if (m < 10) return 'eta eta--soon'
-  if (m < 20) return 'eta eta--mid'
-  return 'eta eta--ok'
-}
-
-async function loadRoutes() {
-  loading.value = true
+async function loadStops() {
+  loadingStops.value = true
   error.value = null
   try {
-    routes.value = await listRoutes()
+    stops.value = await listStops()
   } catch (e: unknown) {
-    if (e instanceof ApiError) {
-      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
-    } else if (e instanceof Error) {
-      error.value = e.message
-    } else {
-      error.value = 'Failed to load routes'
-    }
+    if (e instanceof ApiError) error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
+    else if (e instanceof Error) error.value = e.message
+    else error.value = 'Failed to load stops'
   } finally {
-    loading.value = false
+    loadingStops.value = false
   }
 }
 
-function openRoute(r: RouteWithNextDto) {
-  router.push({
-    name: 'route-details',
-    query: { from: r.from, to: r.to, operator: r.operator },
-  })
+async function doSearch() {
+  if (!canSearch.value) return
+
+  loadingSearch.value = true
+  error.value = null
+  try {
+    const res = await searchNext({
+      from: from.value,
+      to: to.value,
+    })
+    result.value = res
+
+    // сохраняем в URL, чтобы работал share/back
+    router.replace({ query: { from: from.value, to: to.value } })
+  } catch (e: unknown) {
+    result.value = null
+    if (e instanceof ApiError) error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
+    else if (e instanceof Error) error.value = e.message
+    else error.value = 'Search failed'
+  } finally {
+    loadingSearch.value = false
+  }
 }
 
-onMounted(loadRoutes)
+function openDetails() {
+  if (!from.value || !to.value) return
+  router.push({ name: 'route-details', query: { from: from.value, to: to.value } })
+}
+
+onMounted(loadStops)
+
+// если юзер пришёл по ссылке с query — попробуем сразу искать
+watch(
+  () => [from.value, to.value],
+  () => {
+    result.value = null
+  }
+)
 </script>
 
 <template>
   <main class="page">
     <header class="header">
-      <h1 class="h1">Routes</h1>
-      <button class="ghostBtn" @click="loadRoutes" :disabled="loading">
-        Refresh
+      <h1 class="h1">Find ferry</h1>
+      <button class="ghostBtn" @click="loadStops" :disabled="loadingStops">
+        Reload stops
       </button>
     </header>
 
-    <p v-if="loading">Loading…</p>
+    <p v-if="loadingStops">Loading stops…</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
-    <ul v-else class="list">
-      <li v-for="r in routes" :key="r.id">
-        <button class="cardBtn" @click="openRoute(r)">
-          <div class="row">
-            <div class="left">
-              <div class="title">{{ r.from }} → {{ r.to }}</div>
-              <div class="subtitle">{{ r.operator }}</div>
-            </div>
+    <section class="card">
+      <label class="label">From</label>
+      <select v-model="from" class="select">
+        <option value="">Select…</option>
+        <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
+      </select>
 
-            <div v-if="etaText(r)" :class="etaClass(r)">
-              {{ etaText(r) }}
-            </div>
-          </div>
-        </button>
-      </li>
-    </ul>
+      <label class="label" style="margin-top:10px;">To</label>
+      <select v-model="to" class="select">
+        <option value="">Select…</option>
+        <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
+      </select>
+
+      <button class="primaryBtn" @click="doSearch" :disabled="!canSearch || loadingSearch" style="margin-top:12px;">
+        {{ loadingSearch ? 'Searching…' : 'Find next' }}
+      </button>
+    </section>
+
+    <section v-if="result" class="card" style="margin-top:12px;">
+      <div><b>In:</b> {{ result.minutesUntil }} min</div>
+      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }} ({{ result.trip.departureTime }})</div>
+      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} ({{ result.trip.arrivalTime }})</div>
+      <div><b>Operator:</b> {{ result.trip.operator }} </div>
+
+      <button class="ghostBtn" style="margin-top:12px;" @click="openDetails">
+        Open details
+      </button>
+
+      <ol style="margin: 10px 0 0; padding-left: 18px;">
+        <li v-for="s in result.trip.stops" :key="s.sequence" style="margin: 6px 0;">
+          {{ s.stopName }} — {{ formatHHmm(s.time) }}  —  {{ s.sequence }} stop. 
+        </li>
+      </ol>
+    </section>
   </main>
 </template>
 
 <style scoped>
-.page {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 16px;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-
-.header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.h1 {
-  margin: 0 0 8px;
-  font-size: 34px;
-  line-height: 1.1;
-}
-
-.ghostBtn {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor: pointer;
-}
-
-.list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.cardBtn {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,.06);
-}
-
-.cardBtn:hover {
-  box-shadow: 0 10px 24px rgba(0,0,0,.10);
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.left {
-  min-width: 0;
-}
-
-.title {
-  font-weight: 750;
-}
-
-.subtitle {
-  opacity: .7;
-  margin-top: 2px;
-  font-size: 14px;
-}
-
-.eta {
-  font-weight: 800;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.eta--soon { color: #dc2626; }   /* red */
-.eta--mid  { color: #d97706; }   /* amber */
-.eta--ok   { color: #047857; }   /* green */
-.eta--unknown { color: #6b7280; } /* gray */
-
-.error { color: #dc2626; }
+.page { max-width: 520px; margin: 0 auto; padding: 16px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+.header { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.h1 { margin:0 0 8px; font-size:34px; line-height:1.1; }
+.card { border:1px solid #e5e7eb; border-radius:14px; padding:14px 16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.label { display:block; font-size:13px; opacity:.7; margin-bottom:4px; }
+.select { width:100%; padding:10px 10px; border-radius:10px; border:1px solid #e5e7eb; }
+.primaryBtn { width:100%; padding:12px 12px; border-radius:12px; border:1px solid #111827; background:#111827; color:#fff; font-weight:700; cursor:pointer; }
+.primaryBtn:disabled { opacity:.5; cursor:not-allowed; }
+.ghostBtn { border:1px solid #e5e7eb; background:#fff; border-radius:10px; padding:8px 10px; cursor:pointer; }
+.error { color:#dc2626; }
 </style>
