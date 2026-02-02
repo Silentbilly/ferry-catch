@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:16
-    container_name: ferrycatch-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -17,7 +16,6 @@ services:
   api:
     build:
       context: ./apps/api
-    container_name: ferrycatch-api
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
@@ -27,7 +25,6 @@ services:
 
   caddy:
     image: caddy:2
-    container_name: ferrycatch-caddy
     ports:
       - "80:80"
       - "443:443"
