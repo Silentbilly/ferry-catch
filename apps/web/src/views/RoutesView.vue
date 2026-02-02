@@ -103,8 +103,8 @@ watch(
 
     <section v-if="result" class="card" style="margin-top:12px;">
       <div><b>In:</b> {{ result.minutesUntil }} min</div>
-      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime, ) }} ({{ formatYYYYMMDD(result.trip.arrivalTime) }})</div>
-      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} ({{ formatYYYYMMDD(result.trip.arrivalTime) }})</div>
+      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime, ) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
+      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
       <div><b>Operator:</b> {{ result.trip.operator }} </div>
 
       <button class="ghostBtn" style="margin-top:12px;" @click="openDetails">
@@ -113,7 +113,7 @@ watch(
 
       <ol style="margin: 10px 0 0; padding-left: 18px;">
         <li v-for="s in result.trip.stops" :key="s.sequence" style="margin: 6px 0;">
-          {{ s.stopName }} — {{ formatHHmm(s.time) }}  —  {{ s.sequence }} stop. 
+          {{ s.stopName }} — {{ formatHHmm(s.time) }} 
         </li>
       </ol>
     </section>

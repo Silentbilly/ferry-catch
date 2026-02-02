@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import type { TimetableResponse, SearchResponse } from "../api/types";
-import { getTimetable, searchNext } from "../api";
+import type { TimetableResponse, SearchResponse, TripDto } from "../api/types";
+import { getUpcomingTimetable, searchNext } from "../api";
 import { ApiError } from "../api/client";
-import { formatHHmm } from "../helpers/dateFormat";
+import { formatHHmm, formatYYYYMMDD } from "../helpers/dateFormat";
 
 const route = useRoute();
 
@@ -23,6 +23,35 @@ function buildQuery() {
   };
 }
 
+function upcomingQuery() {
+  return {
+    from: from.value,
+    to: to.value,
+    limit: 20,
+  };
+}
+
+function getStopsNumber(trip: TripDto): string {
+  const stopsCount = Math.max(0, trip.stops.length - 2);
+
+  if (stopsCount === 0) return " non-stop";
+  return ` ${stopsCount} ${stopsCount === 1 ? "stop" : "stops"}`;
+}
+
+function timeUntil(isoTime: string): string {
+  const depMs = new Date(isoTime).getTime()
+  const nowMs = Date.now()
+
+  const totalMinutes = Math.ceil((depMs - nowMs) / 1000 / 60)
+  if (totalMinutes < 0) return 'departed'
+
+  if (totalMinutes < 60) return `${totalMinutes} min`
+
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return `${h}h ${m} min`
+}
+
 async function load() {
   if (!from.value || !to.value) return;
 
@@ -31,10 +60,11 @@ async function load() {
 
   try {
     const q = buildQuery();
+    const u = upcomingQuery();
 
     const [next, tt] = await Promise.all([
       searchNext(q),
-      getTimetable(q),
+      getUpcomingTimetable(u),
     ]);
 
     nextData.value = next;
@@ -55,10 +85,12 @@ async function load() {
   }
 }
 
-onMounted(load);
 watch(
   () => [route.query.from, route.query.to, route.query.operator],
-  load
+  () => {
+    void load();
+  },
+  { immediate: true },
 );
 </script>
 
@@ -76,18 +108,18 @@ watch(
         style="padding: 12px; border: 1px solid #ddd; border-radius: 12px"
       >
         <div><b>In:</b> {{ nextData.minutesUntil }} min</div>
-        <div><b>Dep:</b> {{ formatHHmm(nextData.trip.departureTime) }} ({{ nextData.trip.departureTime }})</div>
-        <div><b>Arr:</b> {{ formatHHmm(nextData.trip.arrivalTime) }} ({{ nextData.trip.arrivalTime }})</div>        
-        <div><b>Operator:</b> {{ nextData.trip.operator }} </div>
+        <div><b>Dep:</b> {{ formatHHmm(nextData.trip.departureTime) }}</div>
+        <div><b>Arr:</b> {{ formatHHmm(nextData.trip.arrivalTime) }}</div>
+        <div><b>Operator:</b> {{ nextData.trip.operator }}</div>
 
         <ol style="margin-top: 10px">
           <li v-for="s in nextData.trip.stops" :key="s.sequence">
-            {{ s.stopName }} — {{ formatHHmm(s.time) }}  —  {{ s.sequence }} stop
+            {{ s.stopName }} — {{ formatHHmm(s.time) }}
           </li>
         </ol>
       </div>
 
-      <h2 style="margin-top: 18px">Timetable ({{ timetable?.date }})</h2>
+      <h2 style="margin-top: 18px">Timetable</h2>
       <div v-if="timetable" style="display: grid; gap: 12px">
         <div
           v-for="t in timetable.trips"
@@ -97,7 +129,12 @@ watch(
           <div style="font-weight: 600">
             {{ formatHHmm(t.departureTime) }} → {{ formatHHmm(t.arrivalTime) }}
           </div>
-          <div style="opacity: 0.7; font-size: 13px"> {{ t.operator }}</div>
+          <div style="opacity: 0.75; font-size: 13px">
+            {{ formatYYYYMMDD(t.departureTime) }} · in
+            {{ timeUntil(t.departureTime) }} ·
+            {{ getStopsNumber(t).trim() }}
+          </div>
+          <div style="opacity: 0.7; font-size: 13px">{{ t.operator }}</div>
         </div>
       </div>
     </section>

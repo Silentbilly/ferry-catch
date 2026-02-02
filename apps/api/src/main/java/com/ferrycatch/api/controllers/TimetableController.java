@@ -38,9 +38,9 @@ public class TimetableController {
     )
     @GetMapping("/timetable")
     public TimetableResponse timetable(
-            @Parameter(description = "Start stop name/code", example = "Kınalıada", required = true)
+            @Parameter(description = "Start stop name", example = "Kınalıada", required = true)
             @RequestParam String from,
-            @Parameter(description = "Destination stop name/code", example = "Bostancı", required = true)
+            @Parameter(description = "Destination stop name", example = "Bostancı", required = true)
             @RequestParam String to,
             @Parameter(description = "Ferry operator (optional)")
             @RequestParam(required = false) String operator,
@@ -52,6 +52,21 @@ public class TimetableController {
         return timetableService.getTimetable(from, to, operator, d);
     }
 
-    public record RouteDto(UUID id, String from, String to, String operator) {}
-    public record TimetableResponse(RouteDto route, String date, List<TripDto> trips) {}
+    @GetMapping("/timetable/upcoming")
+    public TimetableResponse upcoming(
+            @Parameter(example = "Bostancı")
+            @RequestParam String from,
+            @Parameter(example = "Kınalıada")
+            @RequestParam String to,
+            @RequestParam(required = false) String operator,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        return timetableService.getUpcoming(from, to, operator, limit);
+    }
+
+    public record RouteDto(UUID id, String from, String to, String operator) {
+    }
+
+    public record TimetableResponse(RouteDto route, String date, List<TripDto> trips) {
+    }
 }

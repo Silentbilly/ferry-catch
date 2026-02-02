@@ -19,6 +19,32 @@ public class TripRepository {
 
     // NEW: next trips for any segment (works for circular and mid-start trips)
     public List<TripSegmentRow> findNextTripSegments(String from, String to, String operatorOrNull, int limit) {
+
+        boolean hasOperator = operatorOrNull != null && !operatorOrNull.trim().isEmpty();
+
+        var sql = getNextTripSegmentsSql(hasOperator);
+
+        var params = new MapSqlParameterSource()
+                .addValue("from", from)
+                .addValue("to", to)
+                .addValue("limit", limit);
+
+        if (hasOperator) {
+            params.addValue("operator", operatorOrNull.trim());
+        }
+
+        return jdbc.query(sql, params, (rs, i) -> new TripSegmentRow(
+                UUID.fromString(rs.getString("trip_id")),
+                UUID.fromString(rs.getString("route_id")),
+                rs.getString("operator"),
+                rs.getObject("segment_departure_time", OffsetDateTime.class),
+                rs.getObject("segment_arrival_time", OffsetDateTime.class),
+                rs.getInt("from_seq"),
+                rs.getInt("to_seq")
+        ));
+    }
+
+    private static String getNextTripSegmentsSql(boolean hasOperator) {
         var sql = """
                   SELECT
                     t.id AS trip_id,
@@ -33,33 +59,25 @@ public class TripRepository {
                   JOIN operators o ON o.id = r.operator_id
                   JOIN stop_times st_from
                     ON st_from.trip_id = t.id
-                   AND st_from.stop_name = CAST(:from AS text)
+                   AND st_from.stop_name = :from
                   JOIN stop_times st_to
                     ON st_to.trip_id = t.id
-                   AND st_to.stop_name = CAST(:to AS text)
+                   AND st_to.stop_name = :to
                    AND st_to.stop_sequence > st_from.stop_sequence
-                  WHERE (CAST(:operator AS text) IS NULL OR o.name = CAST(:operator AS text))
-                    AND st_from.time >= now()
+                  WHERE st_from.time >= now()
+                """;
+
+        if (hasOperator) {
+            sql += "\n  AND o.name = :operator";
+        }
+
+        sql += """
                   ORDER BY st_from.time
                   LIMIT :limit
                 """;
-
-        var params = new MapSqlParameterSource()
-                .addValue("from", from)
-                .addValue("to", to)
-                .addValue("operator", blankToNull(operatorOrNull))
-                .addValue("limit", limit);
-
-        return jdbc.query(sql, params, (rs, i) -> new TripSegmentRow(
-                UUID.fromString(rs.getString("trip_id")),
-                UUID.fromString(rs.getString("route_id")),
-                rs.getString("operator"),
-                rs.getObject("segment_departure_time", OffsetDateTime.class),
-                rs.getObject("segment_arrival_time", OffsetDateTime.class),
-                rs.getInt("from_seq"),
-                rs.getInt("to_seq")
-        ));
+        return sql;
     }
+
 
     public List<TripSegmentRow> findTripSegmentsForDate(String from, String to, String operatorOrNull,
                                                         java.time.LocalDate date) {
