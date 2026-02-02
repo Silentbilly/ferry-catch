@@ -1,0 +1,6 @@
+ferrycatch.com.tr, www.ferrycatch.com.tr {
+  root * /srv/www
+  file_server
+
+  reverse_proxy /api/* api:8080
+}

@@ -1,12 +1,13 @@
 spring:
   application:
     name: ferrycatch-api
-
   datasource:
-    url: jdbc:postgresql://172.29.227.0:5432/ferrycatch
-#    jdbc:postgresql://db:5432/ferrycatch - for docker
-    username: ferry
-    password: ferry123
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+server:
+  port: 8080
