@@ -25,9 +25,11 @@ public class MaterializeService {
             LocalTime dep,
             LocalTime arr,
             boolean noSunHol,
+            boolean onlySunHol,
             LocalDate activeUntil,
             LocalDate activeFrom
-    ) {}
+    ) {
+    }
 
     @Transactional
     public void materialize(LocalDate startDate, int days) {
@@ -47,11 +49,13 @@ public class MaterializeService {
         for (LocalDate d = startDate; d.isBefore(end); d = d.plusDays(1)) {
             boolean isSunday = d.getDayOfWeek() == DayOfWeek.SUNDAY;
             boolean isHoliday = isHoliday(d);
+            boolean isSunHol = isSunday || isHoliday;
 
             for (var tt : templates) {
                 if (tt.activeFrom() != null && d.isBefore(tt.activeFrom())) continue;
                 if (tt.activeUntil() != null && d.isAfter(tt.activeUntil())) continue;
-                if (tt.noSunHol() && (isSunday || isHoliday)) continue;
+                if (tt.noSunHol() && isSunHol) continue;
+                if (tt.onlySunHol() && !isSunHol) continue;
 
                 UUID tripId = UUID.randomUUID();
 
@@ -64,9 +68,9 @@ public class MaterializeService {
 
                 jdbc.update(
                         """
-                        INSERT INTO trips(id, route_id, service_date, departure_time, arrival_time)
-                        VALUES (:id,:route,:date,:dep,:arr)
-                        """,
+                                INSERT INTO trips(id, route_id, service_date, departure_time, arrival_time)
+                                VALUES (:id,:route,:date,:dep,:arr)
+                                """,
                         new MapSqlParameterSource()
                                 .addValue("id", tripId)
                                 .addValue("route", tt.routeId())
@@ -85,9 +89,9 @@ public class MaterializeService {
 
                     jdbc.update(
                             """
-                            INSERT INTO stop_times(trip_id, stop_sequence, stop_name, time)
-                            VALUES (:trip,:seq,:name,:time)
-                            """,
+                                    INSERT INTO stop_times(trip_id, stop_sequence, stop_name, time)
+                                    VALUES (:trip,:seq,:name,:time)
+                                    """,
                             new MapSqlParameterSource()
                                     .addValue("trip", tripId)
                                     .addValue("seq", s.seq())
@@ -102,9 +106,11 @@ public class MaterializeService {
     private List<TemplateRow> loadTemplates() {
         return jdbc.query(
                 """
-                SELECT id, route_id, departure_local, arrival_local, no_sundays_and_holidays, active_until, active_from
-                FROM trip_templates
-                """,
+                        SELECT id, route_id, departure_local, arrival_local,
+                               no_sundays_and_holidays, only_sundays_and_holidays,
+                               active_until, active_from
+                        FROM trip_templates
+                                        """,
                 new MapSqlParameterSource(),
                 (rs, i) -> new TemplateRow(
                         UUID.fromString(rs.getString("id")),
@@ -112,22 +118,24 @@ public class MaterializeService {
                         rs.getObject("departure_local", LocalTime.class),
                         rs.getObject("arrival_local", LocalTime.class),
                         rs.getBoolean("no_sundays_and_holidays"),
+                        rs.getBoolean("only_sundays_and_holidays"),
                         rs.getObject("active_until", LocalDate.class),
                         rs.getObject("active_from", LocalDate.class)
                 )
         );
     }
 
-    public record StopTpl(int seq, String name, LocalTime timeLocal) {}
+    public record StopTpl(int seq, String name, LocalTime timeLocal) {
+    }
 
     private List<StopTpl> loadStopTemplates(UUID tripTemplateId) {
         return jdbc.query(
                 """
-                SELECT stop_sequence, stop_name, time_local
-                FROM stop_time_templates
-                WHERE trip_template_id = :id
-                ORDER BY stop_sequence
-                """,
+                        SELECT stop_sequence, stop_name, time_local
+                        FROM stop_time_templates
+                        WHERE trip_template_id = :id
+                        ORDER BY stop_sequence
+                        """,
                 new MapSqlParameterSource("id", tripTemplateId),
                 (rs, i) -> new StopTpl(
                         rs.getInt("stop_sequence"),

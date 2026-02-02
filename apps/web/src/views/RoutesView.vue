@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { formatHHmm, formatYYYYMMDD } from '../helpers/dateFormat'
 import { useRouter, useRoute } from 'vue-router'
 import { ApiError } from '../api/client'
 import { listStops, searchNext } from '../api'
@@ -8,7 +9,6 @@ import type { SearchResponse } from '../api/types'
 const router = useRouter()
 const route = useRoute()
 
-const operator = ref<string>('Mavi Marmara') // пока фикс; позже можно загрузить /operators
 const stops = ref<string[]>([])
 const from = ref<string>(String(route.query.from ?? ''))
 const to = ref<string>(String(route.query.to ?? ''))
@@ -17,13 +17,6 @@ const loadingStops = ref(false)
 const loadingSearch = ref(false)
 const error = ref<string | null>(null)
 const result = ref<SearchResponse | null>(null)
-
-function formatHHmm(iso?: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
 
 const canSearch = computed(() => from.value && to.value && from.value !== to.value)
 
@@ -85,9 +78,6 @@ watch(
   <main class="page">
     <header class="header">
       <h1 class="h1">Find ferry</h1>
-      <button class="ghostBtn" @click="loadStops" :disabled="loadingStops">
-        Reload stops
-      </button>
     </header>
 
     <p v-if="loadingStops">Loading stops…</p>
@@ -113,8 +103,8 @@ watch(
 
     <section v-if="result" class="card" style="margin-top:12px;">
       <div><b>In:</b> {{ result.minutesUntil }} min</div>
-      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }} ({{ result.trip.departureTime }})</div>
-      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} ({{ result.trip.arrivalTime }})</div>
+      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime, ) }} ({{ formatYYYYMMDD(result.trip.arrivalTime) }})</div>
+      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} ({{ formatYYYYMMDD(result.trip.arrivalTime) }})</div>
       <div><b>Operator:</b> {{ result.trip.operator }} </div>
 
       <button class="ghostBtn" style="margin-top:12px;" @click="openDetails">

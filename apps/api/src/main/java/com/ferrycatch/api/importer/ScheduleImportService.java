@@ -41,15 +41,21 @@ public class ScheduleImportService {
             for (var t : r.trips()) {
                 // Validate flags
                 boolean noSunHol = t.flags() != null && Boolean.TRUE.equals(t.flags().noSundaysAndHolidays());
-                LocalDate activeUntil = (t.flags() != null && t.flags().activeUntil() != null && !t.flags().activeUntil().isBlank())
-                        ? LocalDate.parse(t.flags().activeUntil())
-                        : null;
+                boolean onlySunHol = t.flags() != null && Boolean.TRUE.equals(t.flags().onlySundaysAndHolidays());
+                if (noSunHol && onlySunHol) {
+                    throw new IllegalArgumentException(
+                            "Trip cannot have both noSundaysAndHolidays=true and onlySundaysAndHolidays=true");
+                }
+                LocalDate activeUntil =
+                        (t.flags() != null && t.flags().activeUntil() != null && !t.flags().activeUntil().isBlank())
+                                ? LocalDate.parse(t.flags().activeUntil())
+                                : null;
 
                 // Derive departure/arrival from trip fields
                 LocalTime dep = LocalTime.parse(t.departure());
                 LocalTime arr = LocalTime.parse(t.arrival());
 
-                UUID templateId = insertTripTemplate(routeId, dep, arr, noSunHol, activeUntil);
+                UUID templateId = insertTripTemplate(routeId, dep, arr, noSunHol, onlySunHol, activeUntil);
 
                 for (var s : t.stops()) {
                     insertStopTimeTemplate(templateId, s.seq(), s.name(), LocalTime.parse(s.time()));
@@ -66,17 +72,20 @@ public class ScheduleImportService {
         return jdbc.query(
                 "SELECT id FROM operators WHERE name = :name",
                 new MapSqlParameterSource("name", name),
-                rs -> { rs.next(); return UUID.fromString(rs.getString("id")); }
+                rs -> {
+                    rs.next();
+                    return UUID.fromString(rs.getString("id"));
+                }
         );
     }
 
     private UUID upsertRoute(String from, String to, UUID operatorId) {
         jdbc.update(
                 """
-                INSERT INTO routes("from","to",operator_id)
-                VALUES (:from,:to,:op)
-                ON CONFLICT ("from","to",operator_id) DO NOTHING
-                """,
+                        INSERT INTO routes("from","to",operator_id)
+                        VALUES (:from,:to,:op)
+                        ON CONFLICT ("from","to",operator_id) DO NOTHING
+                        """,
                 new MapSqlParameterSource()
                         .addValue("from", from)
                         .addValue("to", to)
@@ -84,40 +93,48 @@ public class ScheduleImportService {
         );
         return jdbc.query(
                 """
-                SELECT id FROM routes
-                WHERE "from"=:from AND "to"=:to AND operator_id=:op
-                """,
+                        SELECT id FROM routes
+                        WHERE "from"=:from AND "to"=:to AND operator_id=:op
+                        """,
                 new MapSqlParameterSource()
                         .addValue("from", from)
                         .addValue("to", to)
                         .addValue("op", operatorId),
-                rs -> { rs.next(); return UUID.fromString(rs.getString("id")); }
+                rs -> {
+                    rs.next();
+                    return UUID.fromString(rs.getString("id"));
+                }
         );
     }
 
-    private UUID insertTripTemplate(UUID routeId, LocalTime dep, LocalTime arr, boolean noSunHol, LocalDate activeUntil) {
+    private UUID insertTripTemplate(UUID routeId, LocalTime dep, LocalTime arr, boolean noSunHol, boolean onlySunHol,
+                                    LocalDate activeUntil) {
         return jdbc.query(
                 """
-                INSERT INTO trip_templates(route_id, departure_local, arrival_local, no_sundays_and_holidays, active_until, active_from)
-                VALUES (:routeId, :dep, :arr, :noSunHol, :activeUntil, NULL)
-                RETURNING id
-                """,
+                        INSERT INTO trip_templates(route_id, departure_local, arrival_local, no_sundays_and_holidays, only_sundays_and_holidays, active_until, active_from)
+                        VALUES (:routeId, :dep, :arr, :noSunHol, :onlySunHol, :activeUntil, NULL)
+                        RETURNING id
+                        """,
                 new MapSqlParameterSource()
                         .addValue("routeId", routeId)
                         .addValue("dep", dep)
                         .addValue("arr", arr)
                         .addValue("noSunHol", noSunHol)
+                        .addValue("onlySunHol", onlySunHol)
                         .addValue("activeUntil", activeUntil),
-                rs -> { rs.next(); return UUID.fromString(rs.getString("id")); }
+                rs -> {
+                    rs.next();
+                    return UUID.fromString(rs.getString("id"));
+                }
         );
     }
 
     private void insertStopTimeTemplate(UUID tripTemplateId, int seq, String name, LocalTime time) {
         jdbc.update(
                 """
-                INSERT INTO stop_time_templates(trip_template_id, stop_sequence, stop_name, time_local)
-                VALUES (:tt, :seq, :name, :time)
-                """,
+                        INSERT INTO stop_time_templates(trip_template_id, stop_sequence, stop_name, time_local)
+                        VALUES (:tt, :seq, :name, :time)
+                        """,
                 new MapSqlParameterSource()
                         .addValue("tt", tripTemplateId)
                         .addValue("seq", seq)

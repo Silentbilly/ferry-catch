@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import type { TimetableResponse, SearchResponse } from "../api/types";
 import { getTimetable, searchNext } from "../api";
 import { ApiError } from "../api/client";
+import { formatHHmm } from "../helpers/dateFormat";
 
 const route = useRoute();
 
@@ -14,13 +15,6 @@ const nextData = ref<SearchResponse | null>(null);
 const timetable = ref<TimetableResponse | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
-
-function formatHHmm(iso?: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
 
 function buildQuery() {
   return {
