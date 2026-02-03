@@ -1,5 +1,8 @@
 name: Build & Push API image
 
+env:
+  IMAGE_NAME: ghcr.io/silentbilly/ferrycatch-api
+
 on:
   push:
     branches: ["main"]
@@ -31,5 +34,5 @@ jobs:
           context: ./apps/api
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/ferrycatch-api:latest
-            ghcr.io/${{ github.repository_owner }}/ferrycatch-api:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
