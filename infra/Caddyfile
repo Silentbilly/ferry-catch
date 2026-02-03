@@ -1,4 +1,4 @@
-ferrycatch.com.tr, www.ferrycatch.com.tr {
+ferrynow.app, www.ferrynow.app {
   root * /srv/www
   file_server
 
