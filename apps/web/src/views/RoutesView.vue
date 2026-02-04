@@ -77,7 +77,7 @@ watch(
 <template>
   <main class="page">
     <header class="header">
-      <h1 class="h1">Find ferry</h1>
+      <h1 class="h1">Catch a Ferry</h1>
     </header>
 
     <p v-if="loadingStops">Loading stops…</p>
@@ -102,7 +102,7 @@ watch(
     </section>
 
     <section v-if="result" class="card" style="margin-top:12px;">
-      <h2 class="h2">Catch a Ferry</h2>
+      <h2 class="h2">Next Ferry</h2>
       <div><b>In:</b> {{ result.minutesUntil }} min</div>
       <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
       <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
