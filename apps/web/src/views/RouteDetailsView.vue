@@ -35,7 +35,7 @@ function upcomingQuery() {
 function getStopsNumber(trip: TripDto): string {
   const stopsCount = Math.max(0, trip.stops.length - 2);
 
-  if (stopsCount === 0) return " non-stop";
+  if (stopsCount === 0) return " Direct";
   return ` ${stopsCount} ${stopsCount === 1 ? "stop" : "stops"}`;
 }
 

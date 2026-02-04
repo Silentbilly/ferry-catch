@@ -102,14 +102,14 @@ watch(
     </section>
 
     <section v-if="result" class="card" style="margin-top:12px;">
-      <h2 class="h2">Next Ferry</h2>
+      <h2 class="h2">Catch a Ferry</h2>
       <div><b>In:</b> {{ result.minutesUntil }} min</div>
       <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
       <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
       <div><b>Operator:</b> {{ result.trip.operator }} </div>
 
       <button class="ghostBtn" style="margin-top:12px;" @click="openDetails">
-        Timetable
+        More →
       </button>
 
       <ol style="margin: 10px 0 0; padding-left: 18px;">
