@@ -1,7 +1,8 @@
 ferrynow.app, www.ferrynow.app {
   root * /srv/www
 
-  handle_path /api/* {
+  @api path /api /api/*
+  handle @api {
     reverse_proxy api:8080
   }
 
