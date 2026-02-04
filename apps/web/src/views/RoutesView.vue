@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import logoUrl from "../../logo.png";
 import { computed, onMounted, ref, watch } from "vue";
-import { formatHHmm, formatYYYYMMDD } from "../helpers/dateFormat";
+import { formatHHmm, formatYYYYMMDD, timeUntil } from "../helpers/dateFormat";
 import { useRouter, useRoute } from "vue-router";
 import { ApiError } from "../api/client";
 import { listStops, searchNext } from "../api";
@@ -125,7 +125,7 @@ watch(
         </button>
       </div>
 
-      <div><b>In:</b> {{ result.minutesUntil }} min</div>
+      <div><b>In:</b> {{ timeUntil(result.trip.departureTime) }}</div>
       <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }}</div>
       <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }}</div>
       <div><b>Operator:</b> {{ result.trip.operator }}</div>

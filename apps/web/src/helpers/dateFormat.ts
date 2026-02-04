@@ -46,3 +46,17 @@ export function formatYYYYMMDD(
   const dd = String(day).padStart(2, "0");
   return `${year}-${mm}-${dd}`;
 }
+
+export function timeUntil(isoTime: string): string {
+  const depMs = new Date(isoTime).getTime();
+  const nowMs = Date.now();
+
+  const totalMinutes = Math.ceil((depMs - nowMs) / 1000 / 60);
+  if (totalMinutes < 0) return "departed";
+
+  if (totalMinutes < 60) return `${totalMinutes} min`;
+
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${h}h ${m} min`;
+}

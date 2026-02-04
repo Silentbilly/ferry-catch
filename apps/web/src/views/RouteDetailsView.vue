@@ -4,7 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import type { TimetableResponse, SearchResponse, TripDto } from "../api/types";
 import { getUpcomingTimetable, searchNext } from "../api";
 import { ApiError } from "../api/client";
-import { formatHHmm, formatYYYYMMDD } from "../helpers/dateFormat";
+import { formatHHmm, formatYYYYMMDD, timeUntil } from "../helpers/dateFormat";
 
 const route = useRoute();
 const router = useRouter();
@@ -37,20 +37,6 @@ function getStopsNumber(trip: TripDto): string {
 
   if (stopsCount === 0) return " Direct";
   return ` ${stopsCount} ${stopsCount === 1 ? "stop" : "stops"}`;
-}
-
-function timeUntil(isoTime: string): string {
-  const depMs = new Date(isoTime).getTime();
-  const nowMs = Date.now();
-
-  const totalMinutes = Math.ceil((depMs - nowMs) / 1000 / 60);
-  if (totalMinutes < 0) return "departed";
-
-  if (totalMinutes < 60) return `${totalMinutes} min`;
-
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${h}h ${m} min`;
 }
 
 function goBack() {
