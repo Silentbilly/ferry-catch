@@ -1,135 +1,157 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { formatHHmm, formatYYYYMMDD } from '../helpers/dateFormat'
-import { useRouter, useRoute } from 'vue-router'
-import { ApiError } from '../api/client'
-import { listStops, searchNext } from '../api'
-import type { SearchResponse } from '../api/types'
+import logoUrl from "../../logo.png";
+import { computed, onMounted, ref, watch } from "vue";
+import { formatHHmm, formatYYYYMMDD } from "../helpers/dateFormat";
+import { useRouter, useRoute } from "vue-router";
+import { ApiError } from "../api/client";
+import { listStops, searchNext } from "../api";
+import type { SearchResponse } from "../api/types";
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
-const stops = ref<string[]>([])
-const from = ref<string>(String(route.query.from ?? ''))
-const to = ref<string>(String(route.query.to ?? ''))
+const stops = ref<string[]>([]);
+const from = ref<string>(String(route.query.from ?? ""));
+const to = ref<string>(String(route.query.to ?? ""));
 
-const loadingStops = ref(false)
-const loadingSearch = ref(false)
-const error = ref<string | null>(null)
-const result = ref<SearchResponse | null>(null)
+const loadingStops = ref(false);
+const loadingSearch = ref(false);
+const error = ref<string | null>(null);
+const result = ref<SearchResponse | null>(null);
 
-const canSearch = computed(() => from.value && to.value && from.value !== to.value)
+const canSearch = computed(
+  () => from.value && to.value && from.value !== to.value,
+);
 
 async function loadStops() {
-  loadingStops.value = true
-  error.value = null
+  loadingStops.value = true;
+  error.value = null;
   try {
-    stops.value = await listStops()
+    stops.value = await listStops();
   } catch (e: unknown) {
-    if (e instanceof ApiError) error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
-    else if (e instanceof Error) error.value = e.message
-    else error.value = 'Failed to load stops'
+    if (e instanceof ApiError)
+      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
+    else if (e instanceof Error) error.value = e.message;
+    else error.value = "Failed to load stops";
   } finally {
-    loadingStops.value = false
+    loadingStops.value = false;
   }
 }
 
 async function doSearch() {
-  if (!canSearch.value) return
+  if (!canSearch.value) return;
 
-  loadingSearch.value = true
-  error.value = null
+  loadingSearch.value = true;
+  error.value = null;
   try {
     const res = await searchNext({
       from: from.value,
       to: to.value,
-    })
-    result.value = res
+    });
+    result.value = res;
 
     // сохраняем в URL, чтобы работал share/back
-    router.replace({ query: { from: from.value, to: to.value } })
+    router.replace({ query: { from: from.value, to: to.value } });
   } catch (e: unknown) {
-    result.value = null
-    if (e instanceof ApiError) error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message
-    else if (e instanceof Error) error.value = e.message
-    else error.value = 'Search failed'
+    result.value = null;
+    if (e instanceof ApiError)
+      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
+    else if (e instanceof Error) error.value = e.message;
+    else error.value = "Search failed";
   } finally {
-    loadingSearch.value = false
+    loadingSearch.value = false;
   }
 }
 
 function openDetails() {
-  if (!from.value || !to.value) return
-  router.push({ name: 'route-details', query: { from: from.value, to: to.value } })
+  if (!from.value || !to.value) return;
+  router.push({
+    name: "route-details",
+    query: { from: from.value, to: to.value },
+  });
 }
 
-onMounted(loadStops)
+onMounted(loadStops);
 
 // если юзер пришёл по ссылке с query — попробуем сразу искать
 watch(
   () => [from.value, to.value],
   () => {
-    result.value = null
-  }
-)
+    result.value = null;
+  },
+);
 </script>
 
 <template>
   <main class="page">
     <header class="header">
-      <h1 class="h1">Catch a Ferry</h1>
+      <img class="logoTop" :src="logoUrl" alt="Catch a Ferry" />
+      <h1 class="h1">Islands' Ferries</h1>
     </header>
 
     <p v-if="loadingStops">Loading stops…</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
     <section class="card">
+      <h2 class="h2">Find next</h2>
+
       <label class="label">From</label>
       <select v-model="from" class="select">
         <option value="">Select…</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
-      <label class="label" style="margin-top:10px;">To</label>
+      <label class="label" style="margin-top: 10px">To</label>
       <select v-model="to" class="select">
         <option value="">Select…</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
-      <button class="primaryBtn" @click="doSearch" :disabled="!canSearch || loadingSearch" style="margin-top:12px;">
-        {{ loadingSearch ? 'Searching…' : 'Find next' }}
+      <button
+        class="primaryBtn"
+        @click="doSearch"
+        :disabled="!canSearch || loadingSearch"
+        style="margin-top: 12px"
+      >
+        {{ loadingSearch ? "Searching…" : "Find next" }}
       </button>
     </section>
 
-    <section v-if="result" class="card" style="margin-top:12px;">
-      <h2 class="h2">Next Ferry</h2>
+    <section v-if="result" class="card" style="margin-top: 12px">
+      <div class="cardHead">
+        <h2 class="h2 cardHead__title">Next Ferry</h2>
+        <button class="ghostBtn cardHead__more" @click="openDetails">
+          More →
+        </button>
+      </div>
+
       <div><b>In:</b> {{ result.minutesUntil }} min</div>
-      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
-      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }} · {{ formatYYYYMMDD(result.trip.arrivalTime) }}</div>
-      <div><b>Operator:</b> {{ result.trip.operator }} </div>
+      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }}</div>
+      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }}</div>
+      <div><b>Operator:</b> {{ result.trip.operator }}</div>
 
-      <button class="ghostBtn" style="margin-top:12px;" @click="openDetails">
-        More →
-      </button>
-
-      <ol style="margin: 10px 0 0; padding-left: 18px;">
-        <li v-for="s in result.trip.stops" :key="s.sequence" style="margin: 6px 0;">
-          {{ s.stopName }} — {{ formatHHmm(s.time) }} 
+      <ol style="margin: 10px 0 0; padding-left: 18px">
+        <li
+          v-for="s in result.trip.stops"
+          :key="s.sequence"
+          style="margin: 6px 0"
+        >
+          {{ s.stopName }} — {{ formatHHmm(s.time) }}
         </li>
       </ol>
     </section>
-<section class="card" style="margin-top:12px;">
-<h2 class="h2">Wind map</h2>
 
-  <div class="windyWrap" style="margin-top:10px;">
-    <iframe
-      class="windyWrap__frame"
-      src="https://embed.windy.com/embed2.html?lat=40.99&lon=29.02&zoom=10&level=surface&overlay=wind"
-      frameborder="0"
-    ></iframe>
-  </div>
-</section>
+    <section class="card" style="margin-top: 12px">
+      <h2 class="h2">Wind map</h2>
 
+      <div class="windyWrap" style="margin-top: 10px">
+        <iframe
+          class="windyWrap__frame"
+          src="https://embed.windy.com/embed2.html?lat=40.99&lon=29.02&zoom=10&level=surface&overlay=wind"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </section>
   </main>
 </template>
 
@@ -138,16 +160,36 @@ watch(
   max-width: 520px;
   margin: 0 auto;
   padding: 16px;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif;
   background: #f5fbff;
   color: #111827;
 }
 
-.header { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.header {
+  position: relative;
+  padding-top: 44px;
+  display: block;
+}
+
+.logoTop {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 50px;
+  width: auto;
+  display: block;
+}
 
 .h1 {
   margin: 0 0 8px;
-  font-size: 34px;
+  font-size: 24px;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: #111827;
@@ -191,10 +233,15 @@ watch(
   border-radius: 14px;
   padding: 14px 16px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.label { display:block; font-size:13px; color:#374151; margin-bottom:4px; }
+.label {
+  display: block;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 4px;
+}
 
 /* Inputs */
 .select {
@@ -205,10 +252,14 @@ watch(
   background: #fff;
   color: #111827;
   outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-.select:hover { border-color: #9ca3af; }
+.select:hover {
+  border-color: #9ca3af;
+}
 
 /* Keep select focus dark (no blue/cyan ring) */
 .select:focus-visible {
@@ -222,14 +273,17 @@ watch(
   padding: 12px 12px;
   border-radius: 12px;
 
-  /* чуть темнее EPAM Scooter (#39C2D7), чтобы белый читался лучше */
-  background: #0891b2;            /* близко к cyan-600 */
+  background: #0891b2;
   border: 1px solid #0891b2;
   color: #fff;
 
   font-weight: 800;
   cursor: pointer;
-  transition: transform .02s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  transition:
+    transform 0.02s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .primaryBtn:hover:not(:disabled) {
@@ -245,11 +299,11 @@ watch(
 }
 
 .primaryBtn:disabled {
-  background: rgba(8, 145, 178, 0.35);   /* тот же тон, но бледнее */
-  border-color: rgba(8, 145, 178, 0.20);
+  background: rgba(8, 145, 178, 0.35); /* тот же тон, но бледнее */
+  border-color: rgba(8, 145, 178, 0.2);
   color: #97a3bc;
   box-shadow: none;
-  opacity: 1;                             /* не гасим всю кнопку */
+  opacity: 1; /* не гасим всю кнопку */
   cursor: not-allowed;
 }
 
@@ -262,7 +316,10 @@ watch(
   cursor: pointer;
   color: #0e7490; /* чуть темнее циана, чтобы читалось */
   font-weight: 700;
-  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .ghostBtn:hover {
@@ -276,7 +333,27 @@ watch(
   box-shadow: 0 0 0 4px rgba(57, 194, 215, 0.18);
 }
 
-.error { color:#dc2626; }
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cardHead__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.cardHead__more {
+  white-space: nowrap;
+}
+
+.error {
+  color: #dc2626;
+}
 
 /* Windy embed */
 .windyWrap {
@@ -290,6 +367,11 @@ watch(
   background: #fff;
 }
 
-.windyWrap__frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
+.windyWrap__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
 </style>
