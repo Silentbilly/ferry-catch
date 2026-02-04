@@ -93,7 +93,7 @@ watch(
     <p v-else-if="error" class="error">{{ error }}</p>
 
     <section class="card">
-      <h2 class="h2">Find next</h2>
+      <h2 class="h2">Route</h2>
 
       <label class="label">From</label>
       <select v-model="from" class="select">
