@@ -173,7 +173,7 @@ watch(
   font-size: 34px;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  color: #111827;
+  color: #3c465e;
   position: relative;
   padding-bottom: 8px;
 }
@@ -193,7 +193,7 @@ watch(
   font-size: 18px;
   line-height: 1.2;
   font-weight: 800;
-  color: #111827;
+  color: #3c465e;
   position: relative;
   padding-left: 12px;
 }
@@ -253,6 +253,7 @@ watch(
 
 .ttTime {
   font-weight: 800;
+  color: #353e55;
 }
 .ttMeta {
   opacity: 0.75;
