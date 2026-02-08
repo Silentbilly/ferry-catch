@@ -6,6 +6,7 @@ import { useRouter, useRoute } from "vue-router";
 import { ApiError } from "../api/client";
 import { listStops, searchNext } from "../api";
 import type { SearchResponse } from "../api/types";
+import { slugify } from "../helpers/slugify";
 
 const router = useRouter();
 const route = useRoute();
@@ -50,14 +51,19 @@ async function doSearch() {
     });
     result.value = res;
 
-    // сохраняем в URL, чтобы работал share/back
-    router.replace({ query: { from: from.value, to: to.value } });
+    const lang = String(route.params.lang || "en");
+
+    router.replace({
+      name: "routes-with-slug",
+      params: {
+        lang,
+        fromSlug: slugify(from.value),
+        toSlug: slugify(to.value),
+      },
+      query: { from: from.value, to: to.value },
+    });
   } catch (e: unknown) {
-    result.value = null;
-    if (e instanceof ApiError)
-      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
-    else if (e instanceof Error) error.value = e.message;
-    else error.value = "Search failed";
+    // как у тебя было
   } finally {
     loadingSearch.value = false;
   }
@@ -65,8 +71,15 @@ async function doSearch() {
 
 function openDetails() {
   if (!from.value || !to.value) return;
+  const lang = String(route.params.lang || "en");
+
   router.push({
     name: "route-details",
+    params: {
+      lang,
+      fromSlug: slugify(from.value),
+      toSlug: slugify(to.value),
+    },
     query: { from: from.value, to: to.value },
   });
 }
@@ -86,7 +99,7 @@ watch(
   <main class="page">
     <header class="header">
       <img class="logoTop" :src="logoUrl" alt="Catch a Ferry" />
-      <h1 class="h1">Islands' Ferries</h1>
+      <h1 class="h1">Istanbul Ferries (Islands)</h1>
     </header>
 
     <p v-if="loadingStops">Loading stops…</p>
@@ -152,6 +165,26 @@ watch(
         ></iframe>
       </div>
     </section>
+    <section class="card seo-text">
+      <h2 class="h2">Ferries from Istanbul to Princes' Islands</h2>
+      <p>
+        This service helps you find the next ferry from Istanbul to the Princes'
+        Islands: Büyükada, Heybeliada, Burgazada and Kınalıada. You can check
+        departure and arrival times, route stops and operators on one page.
+      </p>
+      <p>
+        Ferries depart from ports like Kabataş, Bostancı, Kadıköy, Beşiktaş,
+        Maltepe and Kartal and go to the islands throughout the day. Use the
+        form above to select your departure and arrival ports and see the
+        closest ferry.
+      </p>
+      <p>
+        Please note that in case of strong wind or adverse weather conditions,
+        ferry operators may cancel or modify departures and routes. Always check
+        the latest updates on the official websites or announcement channels of
+        the operators before you travel.
+      </p>
+    </section>
   </main>
 </template>
 
@@ -189,10 +222,11 @@ watch(
 
 .h1 {
   margin: 0 0 8px;
-  font-size: 24px;
+  font-size: 21px;
   line-height: 1.1;
+  font-weight: 700;
   letter-spacing: -0.02em;
-  color: #111827;
+  color: #3c465e;
   position: relative;
   padding-bottom: 8px;
 }
@@ -203,7 +237,7 @@ watch(
   width: 56px;
   height: 4px;
   border-radius: 999px;
-  background: #0891b2; /* твой primary */
+  background: #0891b2; /* primary */
   margin-top: 10px;
 }
 
@@ -211,8 +245,8 @@ watch(
   margin: 0 0 10px;
   font-size: 18px;
   line-height: 1.2;
-  font-weight: 800;
-  color: #111827;
+  font-weight: 700;
+  color: #3c465e;
   position: relative;
   padding-left: 12px;
 }
@@ -303,7 +337,7 @@ watch(
   border-color: rgba(8, 145, 178, 0.2);
   color: #97a3bc;
   box-shadow: none;
-  opacity: 1; /* не гасим всю кнопку */
+  opacity: 1;
   cursor: not-allowed;
 }
 
@@ -314,7 +348,7 @@ watch(
   border-radius: 10px;
   padding: 8px 10px;
   cursor: pointer;
-  color: #0e7490; /* чуть темнее циана, чтобы читалось */
+  color: #0e7490;
   font-weight: 700;
   transition:
     background-color 0.15s ease,
