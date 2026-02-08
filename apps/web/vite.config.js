@@ -10,12 +10,12 @@ export default defineConfig({
   },
   ssgOptions: {
     includedRoutes: [
-      '/',        // или '/en' если сделаешь редирект
+      '/',
       '/en',
       '/tr',
       '/ru',
       '/en/ferry/kabatas-buyukada',
-      '/en/ferry/kabatas-buyukada',
+      '/en/ferry/besiktas-buyukada',
       '/en/ferry/kadikoy-buyukada',
       '/en/ferry/bostanci-kinaliada',
       '/en/ferry/bostanci-buyukada',
