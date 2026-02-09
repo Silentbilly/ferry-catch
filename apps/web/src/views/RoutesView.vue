@@ -173,17 +173,18 @@ watch(
             Ferries in Istanbul depart from ports like Kabataş, Kadıköy,
             Beşiktaş, Bostancı, Maltepe and Kartal and run to the Princes'
             Islands throughout the day, with different operators running these
-            routes.
+            routes and their own Istanbul ferries schedules.
           </p>
           <p>
             Each operator uses its own pier, so always check the information
             boards and ask on site to make sure the ferry you need departs from
-            that pier.
+            that pier and arrives at the correct island.
           </p>
           <p>
-            Here you can quickly check departure and arrival times, intermediate
-            stops and operators for your route, then open full details for a
-            specific sailing when you need more information.
+            Here you can quickly check the Istanbul ferries schedule for your
+            route: departure and arrival times, intermediate stops and
+            operators, then open full details for a specific sailing when you
+            need more information.
           </p>
           <p class="seoNotice">
             In case of strong wind or adverse weather conditions, ferry
