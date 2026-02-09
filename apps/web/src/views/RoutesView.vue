@@ -166,24 +166,52 @@ watch(
       </div>
     </section>
     <section class="card seo-text">
-      <h2 class="h2">Ferries from Istanbul to Princes' Islands</h2>
-      <p>
-        This service helps you find the next ferry from Istanbul to the Princes'
-        Islands: Büyükada, Heybeliada, Burgazada and Kınalıada. You can check
-        departure and arrival times, route stops and operators on one page.
-      </p>
-      <p>
-        Ferries depart from ports like Kabataş, Bostancı, Kadıköy, Beşiktaş,
-        Maltepe and Kartal and go to the islands throughout the day. Use the
-        form above to select your departure and arrival ports and see the
-        closest ferry.
-      </p>
-      <p>
-        Please note that in case of strong wind or adverse weather conditions,
-        ferry operators may cancel or modify departures and routes. Always check
-        the latest updates on the official websites or announcement channels of
-        the operators before you travel.
-      </p>
+      <details>
+        <summary class="seoSummary">More about ferries & schedule</summary>
+        <div class="seoBody">
+          <p>
+            Ferries in Istanbul depart from ports like Kabataş, Kadıköy,
+            Beşiktaş, Bostancı, Maltepe and Kartal and run to the Princes'
+            Islands throughout the day, with different operators running these
+            routes.
+          </p>
+          <p>
+            Each operator uses its own pier, so always check the information
+            boards and ask on site to make sure the ferry you need departs from
+            that pier.
+          </p>
+          <p>
+            Here you can quickly check departure and arrival times, intermediate
+            stops and operators for your route, then open full details for a
+            specific sailing when you need more information.
+          </p>
+          <p class="seoNotice">
+            In case of strong wind or adverse weather conditions, ferry
+            operators may cancel or change departures and routes, so always
+            double‑check the latest notices on official operator websites such
+            as
+            <a
+              href="https://www.sehirhatlari.istanbul"
+              target="_blank"
+              rel="noopener"
+            >
+              Şehir Hatları </a
+            >,
+            <a
+              href="https://www.mavimarmara.net"
+              target="_blank"
+              rel="noopener"
+            >
+              Mavi Marmara
+            </a>
+            or
+            <a href="https://www.prenstur.net" target="_blank" rel="noopener">
+              Prenstur
+            </a>
+            before you travel.
+          </p>
+        </div>
+      </details>
     </section>
   </main>
 </template>
@@ -407,5 +435,49 @@ watch(
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.seoSummary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: #3c465e;
+}
+
+.seoSummary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.15s ease;
+  color: #0891b2;
+}
+
+details[open] .seoSummary::before {
+  transform: rotate(90deg);
+}
+
+.seoBody {
+  margin-top: 10px;
+}
+
+.seo-text {
+  margin-top: 12px;
+}
+
+.seo-text p {
+  margin: 8px 0;
+}
+.seo-text p:first-child {
+  margin-top: 0;
+}
+.seo-text p:last-child {
+  margin-bottom: 0;
+}
+.seoNotice {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fffbeb;
+  border: 1px solid #facc15;
 }
 </style>
