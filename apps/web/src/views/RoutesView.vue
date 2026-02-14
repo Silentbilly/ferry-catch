@@ -339,7 +339,7 @@ watch(
   font-size: 13px;
   color: #374151;
   margin-bottom: 4px;
-  margin-bottom: 0;
+  margin-top: 0px;
 }
 
 /* Inputs */
