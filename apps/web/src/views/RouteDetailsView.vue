@@ -28,7 +28,7 @@ function upcomingQuery() {
   return {
     from: from.value,
     to: to.value,
-    limit: 20,
+    limit: 30,
   };
 }
 

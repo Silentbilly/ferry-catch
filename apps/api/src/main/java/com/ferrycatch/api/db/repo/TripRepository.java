@@ -18,8 +18,12 @@ public class TripRepository {
     }
 
     // NEW: next trips for any segment (works for circular and mid-start trips)
-    public List<TripSegmentRow> findNextTripSegments(String from, String to, String operatorOrNull, int limit) {
-
+    public List<TripSegmentRow> findNextTripSegments(
+            String from,
+            String to,
+            String operatorOrNull,
+            int limit
+    ) {
         boolean hasOperator = operatorOrNull != null && !operatorOrNull.trim().isEmpty();
 
         var sql = getNextTripSegmentsSql(hasOperator);
@@ -65,6 +69,7 @@ public class TripRepository {
                    AND st_to.stop_name = :to
                    AND st_to.stop_sequence > st_from.stop_sequence
                   WHERE st_from.time >= now()
+                    AND st_from.time < now() + INTERVAL '1 day'
                 """;
 
         if (hasOperator) {

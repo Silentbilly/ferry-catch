@@ -63,7 +63,6 @@ async function doSearch() {
       query: { from: from.value, to: to.value },
     });
   } catch (e: unknown) {
-    // как у тебя было
   } finally {
     loadingSearch.value = false;
   }
@@ -82,6 +81,13 @@ function openDetails() {
     },
     query: { from: from.value, to: to.value },
   });
+}
+
+function swapStops() {
+  if (!from.value && !to.value) return;
+  const oldFrom = from.value;
+  from.value = to.value;
+  to.value = oldFrom;
 }
 
 onMounted(loadStops);
@@ -108,14 +114,18 @@ watch(
     <section class="card">
       <h2 class="h2">Route</h2>
 
-      <label class="label">From</label>
-      <select v-model="from" class="select">
+      <label class="label" for="from-stop">From</label>
+      <select id="from-stop" name="from-stop" v-model="from" class="select">
         <option value="">Select…</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
-      <label class="label" style="margin-top: 10px">To</label>
-      <select v-model="to" class="select">
+      <div class="swapRow">
+        <button type="button" class="swapBtn" @click="swapStops">⇅</button>
+      </div>
+
+      <label class="label" for="to-stop" style="margin-top: 10px">To</label>
+      <select id="to-stop" name="to-stop" v-model="to" class="select">
         <option value="">Select…</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
@@ -295,6 +305,27 @@ watch(
   background: #0891b2;
 }
 
+.swapRow {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+}
+
+.swapBtn {
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.swapBtn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
 .card {
   border: 1px solid #e5e7eb;
   border-radius: 14px;
@@ -308,6 +339,7 @@ watch(
   font-size: 13px;
   color: #374151;
   margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 /* Inputs */
@@ -322,6 +354,7 @@ watch(
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
+  margin-bottom: 8px;
 }
 
 .select:hover {
