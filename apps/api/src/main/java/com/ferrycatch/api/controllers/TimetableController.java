@@ -59,7 +59,7 @@ public class TimetableController {
             @Parameter(example = "Kınalıada")
             @RequestParam String to,
             @RequestParam(required = false) String operator,
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(required = false) Integer limit
     ) {
         return timetableService.getUpcoming(from, to, operator, limit);
     }

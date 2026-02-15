@@ -3,6 +3,7 @@ package com.ferrycatch.api.controllers;
 import com.ferrycatch.api.importer.MaterializeService;
 import com.ferrycatch.api.importer.ScheduleImportService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.SneakyThrows;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +22,9 @@ public class AdminScheduleController {
         this.materializeService = materializeService;
     }
 
+    @SneakyThrows
     @PostMapping("/import")
-    public String importSchedule(@RequestParam String resource) throws Exception {
+    public String importSchedule(@RequestParam(defaultValue = "schedule/winter_2026.json") String resource) {
         importService.importFromClasspath(resource);
         return "OK";
     }

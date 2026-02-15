@@ -50,7 +50,7 @@ public class TimetableService {
         return new TimetableController.TimetableResponse(routeDto, date.toString(), tripDtos);
     }
 
-    public TimetableController.TimetableResponse getUpcoming(String from, String to, String operatorOrNull, int limit) {
+    public TimetableController.TimetableResponse getUpcoming(String from, String to, String operatorOrNull, Integer limit) {
         var tripSegments = tripRepo.findNextTripSegments(from, to, operatorOrNull, limit);
 
         var tripDtos = tripSegments.stream()

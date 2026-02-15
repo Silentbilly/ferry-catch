@@ -22,11 +22,11 @@ public class TripRepository {
             String from,
             String to,
             String operatorOrNull,
-            int limit
+            Integer limit
     ) {
         boolean hasOperator = operatorOrNull != null && !operatorOrNull.trim().isEmpty();
 
-        var sql = getNextTripSegmentsSql(hasOperator);
+        var sql = getNextTripSegmentsSql(hasOperator, limit);
 
         var params = new MapSqlParameterSource()
                 .addValue("from", from)
@@ -48,7 +48,7 @@ public class TripRepository {
         ));
     }
 
-    private static String getNextTripSegmentsSql(boolean hasOperator) {
+    private static String getNextTripSegmentsSql(boolean hasOperator, Integer limit) {
         var sql = """
                   SELECT
                     t.id AS trip_id,
@@ -78,8 +78,10 @@ public class TripRepository {
 
         sql += """
                   ORDER BY st_from.time
-                  LIMIT :limit
                 """;
+        if (limit != null) {
+            sql += "\nLIMIT :limit";
+        }
         return sql;
     }
 
