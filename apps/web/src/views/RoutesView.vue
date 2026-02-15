@@ -313,7 +313,7 @@ watch(
 
 .swapBtn {
   border-radius: 999px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d1d5db00;
   background: #f9fafb;
   padding: 4px 10px;
   font-size: 13px;
