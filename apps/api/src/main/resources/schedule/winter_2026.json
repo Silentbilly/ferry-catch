@@ -331,31 +331,6 @@
           ]
         },
         {
-          "arrival": "21:00",
-          "departure": "20:20",
-          "flags": {
-            "activeUntil": null,
-            "noSundaysAndHolidays": false
-          },
-          "stops": [
-            {
-              "name": "Burgazada",
-              "seq": 1,
-              "time": "20:20"
-            },
-            {
-              "name": "Kınalıada",
-              "seq": 2,
-              "time": "20:35"
-            },
-            {
-              "name": "Bostancı",
-              "seq": 3,
-              "time": "21:00"
-            }
-          ]
-        },
-        {
           "arrival": "22:25",
           "departure": "21:45",
           "flags": {

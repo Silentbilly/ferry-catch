@@ -51,9 +51,9 @@ public class TimetableService {
     }
 
     public TimetableController.TimetableResponse getUpcoming(String from, String to, String operatorOrNull, int limit) {
-        var segs = tripRepo.findNextTripSegments(from, to, operatorOrNull, limit);
+        var tripSegments = tripRepo.findNextTripSegments(from, to, operatorOrNull, limit);
 
-        var tripDtos = segs.stream()
+        var tripDtos = tripSegments.stream()
                 .map(s -> {
                     var segStops = stopRepo.findSegmentByTripId(s.tripId(), s.fromSeq(), s.toSeq()).stream()
                             .map(st -> new FerryDtos.StopDto(st.stopName(), st.stopSequence(), st.time().toString()))
@@ -71,11 +71,11 @@ public class TimetableService {
                 })
                 .toList();
 
-        String op = (operatorOrNull == null || operatorOrNull.isBlank())
+        String operator = (operatorOrNull == null || operatorOrNull.isBlank())
                 ? tripDtos.stream().findFirst().map(FerryDtos.TripDto::operator).orElse("")
                 : operatorOrNull;
 
-        var routeDto = new TimetableController.RouteDto(null, from, to, op);
+        var routeDto = new TimetableController.RouteDto(null, from, to, operator);
 
         return new TimetableController.TimetableResponse(routeDto, LocalDate.now().toString(), tripDtos);
     }
