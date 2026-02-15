@@ -99,6 +99,59 @@ watch(
     result.value = null;
   },
 );
+
+// Favorite routes
+type FavoriteRoute = { from: string; to: string };
+
+const FAVORITES_KEY = "ferry-favorites";
+
+const favorites = ref<FavoriteRoute[]>([]);
+
+const currentIsFavorite = computed(
+  () =>
+    !!favorites.value.find((f) => f.from === from.value && f.to === to.value),
+);
+
+// загрузка из localStorage
+onMounted(() => {
+  loadStops(); // уже есть
+  const raw = localStorage.getItem(FAVORITES_KEY);
+  if (raw) {
+    try {
+      favorites.value = JSON.parse(raw);
+    } catch {
+      favorites.value = [];
+    }
+  }
+});
+
+// автосохранение
+watch(
+  favorites,
+  (val) => {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(val));
+  },
+  { deep: true },
+);
+
+function toggleFavorite() {
+  if (!from.value || !to.value || from.value === to.value) return;
+
+  const idx = favorites.value.findIndex(
+    (f) => f.from === from.value && f.to === to.value,
+  );
+
+  if (idx >= 0) {
+    favorites.value.splice(idx, 1);
+  } else {
+    favorites.value.unshift({ from: from.value, to: to.value });
+  }
+}
+
+function applyFavorite(f: FavoriteRoute) {
+  from.value = f.from;
+  to.value = f.to;
+}
 </script>
 
 <template>
@@ -114,14 +167,34 @@ watch(
     <section class="card">
       <h2 class="h2">Route</h2>
 
+      <div v-if="favorites.length" class="favChips">
+        <button
+          v-for="fav in favorites"
+          :key="fav.from + '→' + fav.to"
+          type="button"
+          class="favChip"
+          @click="applyFavorite(fav)"
+        >
+          {{ fav.from }} → {{ fav.to }}
+        </button>
+      </div>
+
       <label class="label" for="from-stop">From</label>
       <select id="from-stop" name="from-stop" v-model="from" class="select">
         <option value="">Select…</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
-      <div class="swapRow">
+      <div class="betweenRow">
         <button type="button" class="swapBtn" @click="swapStops">⇅</button>
+        <button
+          type="button"
+          class="favBtn"
+          :class="{ 'favBtn--active': currentIsFavorite }"
+          @click="toggleFavorite"
+        >
+          ★
+        </button>
       </div>
 
       <label class="label" for="to-stop" style="margin-top: 10px">To</label>
@@ -517,5 +590,64 @@ details[open] .seoSummary::before {
   border-radius: 8px;
   background: #fffbeb;
   border: 1px solid #facc15;
+}
+
+/* Favorite routes */
+.favChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.favChip {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.favChip:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.betweenRow {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 0 0;
+}
+
+.swapBtn {
+  border-radius: 999px;
+  border: 1px solid #d1d5db00;
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.swapBtn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.favBtn {
+  border-radius: 999px;
+  border: 1px solid #d1d5db00;
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.favBtn--active {
+  color: #f59e0b;
 }
 </style>
