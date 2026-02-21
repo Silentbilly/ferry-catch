@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import logoUrl from "../../logo.png";
 import { computed, onMounted, ref, watch } from "vue";
-import { formatHHmm, formatYYYYMMDD, timeUntil } from "../helpers/dateFormat";
+import { formatHHmm, timeUntil } from "../helpers/dateFormat";
 import { useRouter, useRoute } from "vue-router";
 import { ApiError } from "../api/client";
 import { listStops, searchNext } from "../api";
@@ -472,7 +472,7 @@ function applyFavorite(f: FavoriteRoute) {
 }
 
 .primaryBtn:disabled {
-  background: rgba(8, 145, 178, 0.35); /* тот же тон, но бледнее */
+  background: rgba(8, 145, 178, 0.35);
   border-color: rgba(8, 145, 178, 0.2);
   color: #97a3bc;
   box-shadow: none;

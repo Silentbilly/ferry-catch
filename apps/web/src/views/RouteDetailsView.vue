@@ -103,7 +103,7 @@ watch(
         <h2 class="h2">Next ferry</h2>
 
         <div v-if="nextData" class="stack">
-          <div><b>In:</b> {{ nextData.minutesUntil }} min</div>
+          <div><b>In:</b> {{ timeUntil(nextData.trip.departureTime) }}</div>
           <div><b>Dep:</b> {{ formatHHmm(nextData.trip.departureTime) }}</div>
           <div><b>Arr:</b> {{ formatHHmm(nextData.trip.arrivalTime) }}</div>
           <div><b>Operator:</b> {{ nextData.trip.operator }}</div>
@@ -143,8 +143,16 @@ watch(
 </template>
 
 <style scoped>
-.backBtn { white-space: nowrap; padding: 8px 10px; }
-.header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.backBtn {
+  white-space: nowrap;
+  padding: 8px 10px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
 .page {
   max-width: 520px;
@@ -266,7 +274,6 @@ watch(
   margin-top: 4px;
 }
 
-/* (опционально) если позже добавишь кнопки на эту страницу — можно переиспользовать */
 .primaryBtn {
   width: 100%;
   padding: 12px 12px;
