@@ -253,14 +253,14 @@ function applyFavorite(f: FavoriteRoute) {
         <summary class="seoSummary">More about ferries & schedule</summary>
         <div class="seoBody">
           <p>
-            If you are looking for an Istanbul to Princes' Islands ferry, here
-            you can quickly see the next departures from ports like Kabataş,
-            Kadıköy, Beşiktaş, Bostancı, Maltepe and Kartal.
+            If you are looking for an Istanbul to Princes' Islands ferry
+            (Adalar), here you can quickly see the next departures from ports
+            like Kabataş, Kadıköy, Beşiktaş, Bostancı, Maltepe and Kartal.
           </p>
           <p>
-            This Istanbul to Princes' Islands ferry schedule shows departure and
-            arrival times, intermediate stops and operators, so you can plan
-            your trip without digging through different websites.
+            Ferries to Adalar (Princes' Islands) run throughout the day, and
+            this Istanbul ferries schedule helps you find the next departure
+            without checking multiple websites.
           </p>
           <p>
             Each operator uses its own pier, so always check the information
