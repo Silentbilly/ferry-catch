@@ -35,28 +35,49 @@ public class ScheduleImportService {
             throw new IllegalArgumentException("No JSON resources found for path: " + normalizedPath);
         }
 
-        jdbc.update("DELETE FROM stop_time_templates", new MapSqlParameterSource());
-        jdbc.update("DELETE FROM trip_templates", new MapSqlParameterSource());
+        List<ParsedResource> parsedResources = parseResources(resources);
+        replaceScope(parsedResources);
+        importParsedResources(parsedResources);
+    }
+
+    private List<ParsedResource> parseResources(List<ResourceWithPath> resources) throws Exception {
+        List<ParsedResource> parsed = new ArrayList<>();
 
         for (ResourceWithPath resourceWithPath : resources) {
-            importSingleResource(resourceWithPath.resource(), resourceWithPath.path());
+            ScheduleJson data;
+            try (InputStream in = resourceWithPath.resource().getInputStream()) {
+                data = om.readValue(in, ScheduleJson.class);
+            }
+
+            if (data == null) {
+                throw new IllegalArgumentException("Schedule file is empty: " + resourceWithPath.path());
+            }
+
+            validateRoute(data, resourceWithPath.path());
+            parsed.add(new ParsedResource(resourceWithPath.path(), data));
+        }
+
+        return parsed;
+    }
+
+    private void importParsedResources(List<ParsedResource> parsedResources) {
+        for (ParsedResource parsed : parsedResources) {
+            importParsedResource(parsed);
         }
     }
 
-    private void importSingleResource(Resource resource, String logicalPath) throws Exception {
-        ScheduleJson data;
-        try (InputStream in = resource.getInputStream()) {
-            data = om.readValue(in, ScheduleJson.class);
-        }
+    private void importParsedResource(ParsedResource parsed) {
+        String logicalPath = parsed.logicalPath();
+        ScheduleJson data = parsed.schedule();
 
-        if (data == null) {
-            throw new IllegalArgumentException("Schedule file is empty: " + logicalPath);
-        }
-
-        validateRoute(data, logicalPath);
-
-        UUID operatorId = upsertOperator(data.operator());
-        UUID routeId = upsertRoute(data.from(), data.to(), data.operator(), data.variant(), operatorId);
+        UUID operatorId = upsertOperator(data.operator().trim());
+        UUID routeId = upsertRoute(
+                data.from().trim(),
+                data.to().trim(),
+                data.operator().trim(),
+                data.variant(),
+                operatorId
+        );
 
         for (var t : data.tripTemplates()) {
             ValidatedTrip vt = validateTrip(data, t, logicalPath);
@@ -67,6 +88,7 @@ public class ScheduleImportService {
                     vt.arrival(),
                     vt.noSundaysAndHolidays(),
                     vt.onlySundaysAndHolidays(),
+                    vt.activeFrom(),
                     vt.activeUntil()
             );
 
@@ -74,6 +96,88 @@ public class ScheduleImportService {
                 insertStopTimeTemplate(templateId, s.seq(), s.name(), s.time());
             }
         }
+    }
+
+    private void replaceScope(List<ParsedResource> parsedResources) {
+        LinkedHashSet<RouteKey> routeKeys = new LinkedHashSet<>();
+
+        for (ParsedResource parsed : parsedResources) {
+            ScheduleJson s = parsed.schedule();
+            routeKeys.add(new RouteKey(
+                    s.operator().trim(),
+                    s.from().trim(),
+                    s.to().trim(),
+                    normalizeVariant(s.variant())
+            ));
+        }
+
+        if (routeKeys.isEmpty()) {
+            return;
+        }
+
+        List<UUID> routeIds = new ArrayList<>();
+
+        for (RouteKey key : routeKeys) {
+            UUID operatorId = upsertOperator(key.operatorName());
+            UUID routeId = findRouteId(key.from(), key.to(), operatorId, key.variant());
+            if (routeId != null) {
+                routeIds.add(routeId);
+            }
+        }
+
+        if (routeIds.isEmpty()) {
+            return;
+        }
+
+        MapSqlParameterSource params = new MapSqlParameterSource("routeIds", routeIds);
+
+        jdbc.update(
+                """
+                DELETE FROM stop_times
+                WHERE trip_id IN (
+                    SELECT t.id
+                    FROM trips t
+                    WHERE t.route_id IN (:routeIds)
+                )
+                """,
+                params
+        );
+
+        jdbc.update(
+                """
+                DELETE FROM trips
+                WHERE route_id IN (:routeIds)
+                """,
+                params
+        );
+
+        jdbc.update(
+                """
+                DELETE FROM stop_time_templates
+                WHERE trip_template_id IN (
+                    SELECT tt.id
+                    FROM trip_templates tt
+                    WHERE tt.route_id IN (:routeIds)
+                )
+                """,
+                params
+        );
+
+        jdbc.update(
+                """
+                DELETE FROM trip_templates
+                WHERE route_id IN (:routeIds)
+                """,
+                params
+        );
+
+        jdbc.update(
+                """
+                DELETE FROM routes
+                WHERE id IN (:routeIds)
+                """,
+                params
+        );
     }
 
     private List<ResourceWithPath> resolveJsonResources(String path) throws Exception {
@@ -154,13 +258,26 @@ public class ScheduleImportService {
                     + " trip cannot have both noSundaysAndHolidays=true and onlySundaysAndHolidays=true");
         }
 
+        LocalDate activeFrom =
+                (route.service() != null && !isBlank(route.service().validFrom()))
+                        ? LocalDate.parse(route.service().validFrom().trim())
+                        : null;
+
         LocalDate activeUntil =
                 (trip.flags() != null && !isBlank(trip.flags().activeUntil()))
                         ? LocalDate.parse(trip.flags().activeUntil().trim())
-                        : null;
+                        : (route.service() != null && !isBlank(route.service().validTo())
+                                ? LocalDate.parse(route.service().validTo().trim())
+                                : null);
 
-        LocalTime departure = parseRequiredTime(trip.departure(), routeLabel(route, logicalPath) + " trip departure");
-        LocalTime arrival = parseRequiredTime(trip.arrival(), routeLabel(route, logicalPath) + " trip arrival");
+        LocalTime departure = parseRequiredTime(
+                trip.departure(),
+                routeLabel(route, logicalPath) + " trip departure"
+        );
+        LocalTime arrival = parseRequiredTime(
+                trip.arrival(),
+                routeLabel(route, logicalPath) + " trip arrival"
+        );
 
         if (trip.stops() == null || trip.stops().isEmpty()) {
             throw new IllegalArgumentException(routeLabel(route, logicalPath)
@@ -195,8 +312,9 @@ public class ScheduleImportService {
 
             LocalTime stopTime = parseRequiredTime(
                     s.time(),
-                    routeLabel(route, logicalPath) + " trip " + departure + " -> " + arrival + " stop time for seq "
-                            + s.seq()
+                    routeLabel(route, logicalPath)
+                            + " trip " + departure + " -> " + arrival
+                            + " stop time for seq " + s.seq()
             );
 
             stops.add(new ValidatedStop(s.seq(), s.name().trim(), stopTime));
@@ -221,23 +339,16 @@ public class ScheduleImportService {
                         + " must equal last stop time " + lastStopTime);
             }
         }
+
         return new ValidatedTrip(
                 departure,
                 arrival,
                 noSunHol,
                 onlySunHol,
+                activeFrom,
                 activeUntil,
                 stops
         );
-    }
-
-    private int indexOfStop(List<ValidatedStop> stops, String stopName) {
-        for (int i = 0; i < stops.size(); i++) {
-            if (stops.get(i).name().equals(stopName)) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private LocalTime parseRequiredTime(String value, String label) {
@@ -351,34 +462,34 @@ public class ScheduleImportService {
         return ids.get(0);
     }
 
-    private String normalizeVariant(String variant) {
-        if (variant == null) return null;
-        String v = variant.trim();
-        return v.isEmpty() ? null : v;
-    }
-
-    private UUID insertTripTemplate(UUID routeId, LocalTime dep, LocalTime arr,
-                                    boolean noSunHol, boolean onlySunHol, LocalDate activeUntil) {
+    private UUID insertTripTemplate(UUID routeId,
+                                    LocalTime dep,
+                                    LocalTime arr,
+                                    boolean noSunHol,
+                                    boolean onlySunHol,
+                                    LocalDate activeFrom,
+                                    LocalDate activeUntil) {
         return jdbc.query(
                 """
-                        INSERT INTO trip_templates(
-                            route_id,
-                            departure_local,
-                            arrival_local,
-                            no_sundays_and_holidays,
-                            only_sundays_and_holidays,
-                            active_until,
-                            active_from
-                        )
-                        VALUES (:routeId, :dep, :arr, :noSunHol, :onlySunHol, :activeUntil, NULL)
-                        RETURNING id
-                        """,
+                INSERT INTO trip_templates(
+                    route_id,
+                    departure_local,
+                    arrival_local,
+                    no_sundays_and_holidays,
+                    only_sundays_and_holidays,
+                    active_from,
+                    active_until
+                )
+                VALUES (:routeId, :dep, :arr, :noSunHol, :onlySunHol, :activeFrom, :activeUntil)
+                RETURNING id
+                """,
                 new MapSqlParameterSource()
                         .addValue("routeId", routeId)
                         .addValue("dep", dep)
                         .addValue("arr", arr)
                         .addValue("noSunHol", noSunHol)
                         .addValue("onlySunHol", onlySunHol)
+                        .addValue("activeFrom", activeFrom)
                         .addValue("activeUntil", activeUntil),
                 rs -> {
                     rs.next();
@@ -390,9 +501,9 @@ public class ScheduleImportService {
     private void insertStopTimeTemplate(UUID tripTemplateId, int seq, String name, LocalTime time) {
         jdbc.update(
                 """
-                        INSERT INTO stop_time_templates(trip_template_id, stop_sequence, stop_name, time_local)
-                        VALUES (:tt, :seq, :name, :time)
-                        """,
+                INSERT INTO stop_time_templates(trip_template_id, stop_sequence, stop_name, time_local)
+                VALUES (:tt, :seq, :name, :time)
+                """,
                 new MapSqlParameterSource()
                         .addValue("tt", tripTemplateId)
                         .addValue("seq", seq)
@@ -402,9 +513,10 @@ public class ScheduleImportService {
     }
 
     private String routeLabel(ScheduleJson route, String logicalPath) {
+        String normalizedVariant = normalizeVariant(route.variant());
         return logicalPath + " :: "
                 + route.operator() + " | " + route.from() + " -> " + route.to()
-                + (normalizeVariant(route.variant()) != null ? " [" + normalizeVariant(route.variant()) + "]" : "");
+                + (normalizedVariant != null ? " [" + normalizedVariant + "]" : "");
     }
 
     private String normalizeResourcePath(String resourcePath) {
@@ -425,6 +537,12 @@ public class ScheduleImportService {
         return result;
     }
 
+    private String normalizeVariant(String variant) {
+        if (variant == null) return null;
+        String v = variant.trim();
+        return v.isEmpty() ? null : v;
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
@@ -432,11 +550,18 @@ public class ScheduleImportService {
     private record ResourceWithPath(Resource resource, String path) {
     }
 
+    private record ParsedResource(String logicalPath, ScheduleJson schedule) {
+    }
+
+    private record RouteKey(String operatorName, String from, String to, String variant) {
+    }
+
     private record ValidatedTrip(
             LocalTime departure,
             LocalTime arrival,
             boolean noSundaysAndHolidays,
             boolean onlySundaysAndHolidays,
+            LocalDate activeFrom,
             LocalDate activeUntil,
             List<ValidatedStop> stops
     ) {

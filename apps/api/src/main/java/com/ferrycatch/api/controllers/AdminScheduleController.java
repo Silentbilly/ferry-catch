@@ -4,10 +4,7 @@ import com.ferrycatch.api.importer.MaterializeService;
 import com.ferrycatch.api.importer.ScheduleImportService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 
 @Tag(name = "Admin Schedule API")
 @RestController
@@ -22,20 +19,55 @@ public class AdminScheduleController {
         this.materializeService = materializeService;
     }
 
+    public record ImportRequest(
+            String resource
+    ) {
+    }
+
+    public record MaterializeRequest(
+            Integer days
+    ) {
+    }
+
+    public record ImportAndMaterializeRequest(
+            String resource,
+            Integer days
+    ) {
+    }
+
     @SneakyThrows
     @PostMapping("/import")
-    public String importSchedule(@RequestParam(defaultValue = "schedule/spring_2026") String resource) {
+    public String importSchedule(@RequestBody(required = false) ImportRequest request) {
+        String resource = (request == null || isBlank(request.resource()))
+                ? "schedule/spring_2026"
+                : request.resource().trim();
+
         importService.importFromClasspath(resource);
         return "OK";
     }
 
     @PostMapping("/materialize")
-    public String materialize(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam(defaultValue = "90") int days
-    ) {
-        var s = (start == null) ? LocalDate.now() : start;
-        materializeService.materialize(s, days);
+    public String materializeFromToday(@RequestBody(required = false) MaterializeRequest request) {
+        int days = (request == null || request.days() == null) ? 7 : request.days();
+        materializeService.refreshFromToday(days);
         return "OK";
+    }
+
+    @SneakyThrows
+    @PostMapping("/import-and-materialize")
+    public String importAndMaterialize(@RequestBody(required = false) ImportAndMaterializeRequest request) {
+        String resource = (request == null || isBlank(request.resource()))
+                ? "schedule/spring_2026"
+                : request.resource().trim();
+
+        int days = (request == null || request.days() == null) ? 90 : request.days();
+
+        importService.importFromClasspath(resource);
+        materializeService.refreshFromToday(days);
+        return "OK";
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

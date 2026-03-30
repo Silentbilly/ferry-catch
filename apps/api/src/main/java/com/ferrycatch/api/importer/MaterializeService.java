@@ -5,9 +5,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.*;
-import java.util.List;
-import java.util.UUID;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MaterializeService {
@@ -31,46 +36,88 @@ public class MaterializeService {
     ) {
     }
 
+    public record StopTpl(
+            UUID tripTemplateId,
+            int seq,
+            String name,
+            LocalTime timeLocal
+    ) {
+    }
+
     @Transactional
-    public void materialize(LocalDate startDate, int days) {
-        LocalDate end = startDate.plusDays(days);
+    public void refreshFromToday(int days) {
+        LocalDate today = LocalDate.now(IST);
+        refreshRange(today, days);
+    }
 
-        // optional: clear existing materialized trips in range
-        jdbc.update(
-                "DELETE FROM stop_times st USING trips t WHERE st.trip_id=t.id AND t.service_date >= :s AND t.service_date < :e",
-                new MapSqlParameterSource().addValue("s", startDate).addValue("e", end)
-        );
-        jdbc.update(
-                "DELETE FROM trips WHERE service_date >= :s AND service_date < :e",
-                new MapSqlParameterSource().addValue("s", startDate).addValue("e", end)
-        );
+    @Transactional
+    public void refreshRange(LocalDate startDate, int days) {
+        if (startDate == null) {
+            throw new IllegalArgumentException("startDate must not be null");
+        }
+        if (days <= 0) {
+            throw new IllegalArgumentException("days must be > 0");
+        }
 
-        var templates = loadTemplates();
-        for (LocalDate d = startDate; d.isBefore(end); d = d.plusDays(1)) {
+        LocalDate endExclusive = startDate.plusDays(days);
+
+        clearFutureFrom(startDate);
+        materializeRange(startDate, endExclusive);
+    }
+
+    private void materializeRange(LocalDate startInclusive, LocalDate endExclusive) {
+        List<TemplateRow> templates = loadTemplates();
+        if (templates.isEmpty()) {
+            return;
+        }
+
+        Map<UUID, List<StopTpl>> stopsByTemplateId = loadAllStopTemplates().stream()
+                .collect(Collectors.groupingBy(
+                        StopTpl::tripTemplateId,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        Set<LocalDate> holidays = loadHolidaySet(startInclusive, endExclusive);
+
+        for (LocalDate d = startInclusive; d.isBefore(endExclusive); d = d.plusDays(1)) {
             boolean isSunday = d.getDayOfWeek() == DayOfWeek.SUNDAY;
-            boolean isHoliday = isHoliday(d);
+            boolean isHoliday = holidays.contains(d);
             boolean isSunHol = isSunday || isHoliday;
 
-            for (var tt : templates) {
-                if (tt.activeFrom() != null && d.isBefore(tt.activeFrom())) continue;
-                if (tt.activeUntil() != null && d.isAfter(tt.activeUntil())) continue;
-                if (tt.noSunHol() && isSunHol) continue;
-                if (tt.onlySunHol() && !isSunHol) continue;
+            for (TemplateRow tt : templates) {
+                if (tt.activeFrom() != null && d.isBefore(tt.activeFrom())) {
+                    continue;
+                }
+                if (tt.activeUntil() != null && d.isAfter(tt.activeUntil())) {
+                    continue;
+                }
+                if (tt.noSunHol() && isSunHol) {
+                    continue;
+                }
+                if (tt.onlySunHol() && !isSunHol) {
+                    continue;
+                }
+
+                List<StopTpl> stops = stopsByTemplateId.getOrDefault(tt.id(), List.of());
+                if (stops.isEmpty()) {
+                    throw new IllegalStateException("No stop_time_templates found for trip_template_id=" + tt.id());
+                }
 
                 UUID tripId = UUID.randomUUID();
 
                 OffsetDateTime dep = ZonedDateTime.of(d, tt.dep(), IST).toOffsetDateTime();
-                OffsetDateTime arr = ZonedDateTime.of(d, tt.arr(), IST).toOffsetDateTime();
-                // if arrival crosses midnight, handle it
-                if (tt.arr().isBefore(tt.dep())) {
-                    arr = ZonedDateTime.of(d.plusDays(1), tt.arr(), IST).toOffsetDateTime();
-                }
+
+                int arrivalDayShift = tt.arr().isBefore(tt.dep()) ? 1 : 0;
+                OffsetDateTime arr = ZonedDateTime
+                        .of(d.plusDays(arrivalDayShift), tt.arr(), IST)
+                        .toOffsetDateTime();
 
                 jdbc.update(
                         """
-                                INSERT INTO trips(id, route_id, service_date, departure_time, arrival_time)
-                                VALUES (:id,:route,:date,:dep,:arr)
-                                """,
+                        INSERT INTO trips(id, route_id, service_date, departure_time, arrival_time)
+                        VALUES (:id, :route, :date, :dep, :arr)
+                        """,
                         new MapSqlParameterSource()
                                 .addValue("id", tripId)
                                 .addValue("route", tt.routeId())
@@ -79,38 +126,72 @@ public class MaterializeService {
                                 .addValue("arr", arr)
                 );
 
-                var stops = loadStopTemplates(tt.id());
-                for (var s : stops) {
-                    OffsetDateTime stTime = ZonedDateTime.of(d, s.timeLocal(), IST).toOffsetDateTime();
-                    // if stop time crosses midnight relative to dep, you can refine later; for now assume same-day unless < dep
-                    if (s.timeLocal().isBefore(tt.dep())) {
-                        stTime = ZonedDateTime.of(d.plusDays(1), s.timeLocal(), IST).toOffsetDateTime();
+                int dayShift = 0;
+                LocalTime prevStopTime = null;
+
+                for (StopTpl s : stops) {
+                    if (prevStopTime != null && s.timeLocal().isBefore(prevStopTime)) {
+                        dayShift++;
                     }
+
+                    OffsetDateTime stTime = ZonedDateTime
+                            .of(d.plusDays(dayShift), s.timeLocal(), IST)
+                            .toOffsetDateTime();
 
                     jdbc.update(
                             """
-                                    INSERT INTO stop_times(trip_id, stop_sequence, stop_name, time)
-                                    VALUES (:trip,:seq,:name,:time)
-                                    """,
+                            INSERT INTO stop_times(trip_id, stop_sequence, stop_name, time)
+                            VALUES (:trip, :seq, :name, :time)
+                            """,
                             new MapSqlParameterSource()
                                     .addValue("trip", tripId)
                                     .addValue("seq", s.seq())
                                     .addValue("name", s.name())
                                     .addValue("time", stTime)
                     );
+
+                    prevStopTime = s.timeLocal();
                 }
             }
         }
     }
 
+    private void clearFutureFrom(LocalDate startInclusive) {
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("s", startInclusive);
+
+        jdbc.update(
+                """
+                DELETE FROM stop_times st
+                USING trips t
+                WHERE st.trip_id = t.id
+                  AND t.service_date >= :s
+                """,
+                params
+        );
+
+        jdbc.update(
+                """
+                DELETE FROM trips
+                WHERE service_date >= :s
+                """,
+                params
+        );
+    }
+
     private List<TemplateRow> loadTemplates() {
         return jdbc.query(
                 """
-                        SELECT id, route_id, departure_local, arrival_local,
-                               no_sundays_and_holidays, only_sundays_and_holidays,
-                               active_until, active_from
-                        FROM trip_templates
-                                        """,
+                SELECT id,
+                       route_id,
+                       departure_local,
+                       arrival_local,
+                       no_sundays_and_holidays,
+                       only_sundays_and_holidays,
+                       active_until,
+                       active_from
+                FROM trip_templates
+                """,
                 new MapSqlParameterSource(),
                 (rs, i) -> new TemplateRow(
                         UUID.fromString(rs.getString("id")),
@@ -125,19 +206,16 @@ public class MaterializeService {
         );
     }
 
-    public record StopTpl(int seq, String name, LocalTime timeLocal) {
-    }
-
-    private List<StopTpl> loadStopTemplates(UUID tripTemplateId) {
+    private List<StopTpl> loadAllStopTemplates() {
         return jdbc.query(
                 """
-                        SELECT stop_sequence, stop_name, time_local
-                        FROM stop_time_templates
-                        WHERE trip_template_id = :id
-                        ORDER BY stop_sequence
-                        """,
-                new MapSqlParameterSource("id", tripTemplateId),
+                SELECT trip_template_id, stop_sequence, stop_name, time_local
+                FROM stop_time_templates
+                ORDER BY trip_template_id, stop_sequence
+                """,
+                new MapSqlParameterSource(),
                 (rs, i) -> new StopTpl(
+                        UUID.fromString(rs.getString("trip_template_id")),
                         rs.getInt("stop_sequence"),
                         rs.getString("stop_name"),
                         rs.getObject("time_local", LocalTime.class)
@@ -145,12 +223,20 @@ public class MaterializeService {
         );
     }
 
-    private boolean isHoliday(LocalDate d) {
-        Integer c = jdbc.query(
-                "SELECT 1 FROM holidays WHERE day = :d LIMIT 1",
-                new MapSqlParameterSource("d", d),
-                rs -> rs.next() ? 1 : null
+    private Set<LocalDate> loadHolidaySet(LocalDate startInclusive, LocalDate endExclusive) {
+        List<LocalDate> days = jdbc.query(
+                """
+                SELECT day
+                FROM holidays
+                WHERE day >= :s
+                  AND day < :e
+                """,
+                new MapSqlParameterSource()
+                        .addValue("s", startInclusive)
+                        .addValue("e", endExclusive),
+                (rs, i) -> rs.getObject("day", LocalDate.class)
         );
-        return c != null;
+
+        return new HashSet<>(days);
     }
 }

@@ -4,8 +4,8 @@
   "to": "Kabataş",
   "service": {
     "season": "winter_2026",
-    "validFrom": "2026-02-15",
-    "validTo": null
+    "validFrom": "2026-03-30",
+    "validTo": "2026-05-31"
   },
   "tripTemplates": [
     {
@@ -167,7 +167,7 @@
       "departure": "09:00",
       "arrival": "10:50",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -247,7 +247,7 @@
       "departure": "12:05",
       "arrival": "13:55",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -287,7 +287,7 @@
       "departure": "12:55",
       "arrival": "15:20",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -332,7 +332,7 @@
       "departure": "15:00",
       "arrival": "16:50",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -372,7 +372,7 @@
       "departure": "16:30",
       "arrival": "18:20",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -412,7 +412,7 @@
       "departure": "17:35",
       "arrival": "19:25",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -452,7 +452,7 @@
       "departure": "17:55",
       "arrival": "20:20",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -497,7 +497,7 @@
       "departure": "19:35",
       "arrival": "21:25",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -537,7 +537,7 @@
       "departure": "20:00",
       "arrival": "22:25",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -582,7 +582,7 @@
       "departure": "21:45",
       "arrival": "23:35",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -615,6 +615,201 @@
           "seq": 6,
           "name": "Kabataş",
           "time": "23:35"
+        }
+      ]
+    },
+    {
+      "departure": "05:45",
+      "arrival": "07:45",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "05:45"
+        },
+        {
+          "seq": 2,
+          "name": "Heybeliada",
+          "time": "06:00"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "06:15"
+        },
+        {
+          "seq": 4,
+          "name": "Kınalıada",
+          "time": "06:30"
+        },
+        {
+          "seq": 5,
+          "name": "Kadıköy",
+          "time": "07:05"
+        },
+        {
+          "seq": 6,
+          "name": "Eminönü",
+          "time": "07:30"
+        },
+        {
+          "seq": 7,
+          "name": "Kabataş",
+          "time": "07:45"
+        }
+      ]
+    },
+    {
+      "departure": "06:35",
+      "arrival": "08:25",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "06:35"
+        },
+        {
+          "seq": 2,
+          "name": "Heybeliada",
+          "time": "06:50"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "07:05"
+        },
+        {
+          "seq": 4,
+          "name": "Kınalıada",
+          "time": "07:20"
+        },
+        {
+          "seq": 5,
+          "name": "Kadıköy",
+          "time": "07:55"
+        },
+        {
+          "seq": 6,
+          "name": "Kabataş",
+          "time": "08:25"
+        }
+      ]
+    },
+    {
+      "departure": "07:05",
+      "arrival": "09:30",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Bostancı",
+          "time": "07:05"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "07:40"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "07:55"
+        },
+        {
+          "seq": 4,
+          "name": "Burgazada",
+          "time": "08:10"
+        },
+        {
+          "seq": 5,
+          "name": "Kınalıada",
+          "time": "08:25"
+        },
+        {
+          "seq": 6,
+          "name": "Kadıköy",
+          "time": "09:00"
+        },
+        {
+          "seq": 7,
+          "name": "Kabataş",
+          "time": "09:30"
+        }
+      ]
+    },
+    {
+      "departure": "07:55",
+      "arrival": "09:05",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "07:55"
+        },
+        {
+          "seq": 2,
+          "name": "Heybeliada",
+          "time": "08:10"
+        },
+        {
+          "seq": 3,
+          "name": "Kabataş",
+          "time": "09:05"
+        }
+      ]
+    },
+    {
+      "departure": "10:35",
+      "arrival": "12:25",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "10:35"
+        },
+        {
+          "seq": 2,
+          "name": "Heybeliada",
+          "time": "10:50"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "11:05"
+        },
+        {
+          "seq": 4,
+          "name": "Kınalıada",
+          "time": "11:20"
+        },
+        {
+          "seq": 5,
+          "name": "Kadıköy",
+          "time": "11:55"
+        },
+        {
+          "seq": 6,
+          "name": "Kabataş",
+          "time": "12:25"
         }
       ]
     }

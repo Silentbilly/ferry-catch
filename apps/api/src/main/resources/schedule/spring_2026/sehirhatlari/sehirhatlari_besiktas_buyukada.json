@@ -4,8 +4,8 @@
   "to": "Büyükada",
   "service": {
     "season": "winter_2026",
-    "validFrom": "2026-02-15",
-    "validTo": null
+    "validFrom": "2026-03-30",
+    "validTo": "2026-05-31"
   },
   "tripTemplates": [
     {
@@ -47,7 +47,7 @@
       "departure": "13:00",
       "arrival": "14:35",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -82,7 +82,7 @@
       "departure": "15:15",
       "arrival": "16:50",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -117,7 +117,7 @@
       "departure": "18:15",
       "arrival": "19:50",
       "flags": {
-        "onlySundaysAndHolidays": true,
+        "onlySundaysAndHolidays": false,
         "activeUntil": null
       },
       "stops": [
@@ -145,6 +145,41 @@
           "seq": 5,
           "name": "Büyükada",
           "time": "19:50"
+        }
+      ]
+    },
+    {
+      "departure": "07:25",
+      "arrival": "09:00",
+      "flags": {
+        "activeUntil": null,
+        "noSundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Beşiktaş",
+          "time": "07:25"
+        },
+        {
+          "seq": 2,
+          "name": "Kınalıada",
+          "time": "08:15"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "08:30"
+        },
+        {
+          "seq": 4,
+          "name": "Heybeliada",
+          "time": "08:45"
+        },
+        {
+          "seq": 5,
+          "name": "Büyükada",
+          "time": "09:00"
         }
       ]
     }

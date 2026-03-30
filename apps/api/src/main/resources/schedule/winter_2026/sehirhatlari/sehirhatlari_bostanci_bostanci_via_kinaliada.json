@@ -2,10 +2,11 @@
   "operator": "Şehir Hatları",
   "from": "Bostancı",
   "to": "Bostancı",
+  "variant": "via Kınalıada",
   "service": {
-    "season": "winter_2026",
-    "validFrom": "2026-02-15",
-    "validTo": null
+    "season": "spring_2026",
+    "validFrom": "2026-03-30",
+    "validTo": "2026-05-31"
   },
   "tripTemplates": [
     {
@@ -13,7 +14,7 @@
       "departure": "02:00",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -53,7 +54,7 @@
       "departure": "04:45",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -93,7 +94,7 @@
       "departure": "08:35",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -113,7 +114,7 @@
       "departure": "08:20",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -143,7 +144,7 @@
       "departure": "15:10",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -183,7 +184,7 @@
       "departure": "17:30",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {
@@ -208,7 +209,7 @@
       "departure": "21:45",
       "flags": {
         "activeUntil": null,
-        "noSundaysAndHolidays": false
+        "onlySundaysAndHolidays": true
       },
       "stops": [
         {

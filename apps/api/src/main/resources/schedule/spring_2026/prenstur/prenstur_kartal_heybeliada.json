@@ -4,8 +4,8 @@
   "to": "Heybeliada",
   "service": {
     "season": "winter_2026",
-    "validFrom": "2026-02-15",
-    "validTo": null
+    "validFrom": "2026-03-30",
+    "validTo": "2026-05-31"
   },
   "tripTemplates": [
     {
