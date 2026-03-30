@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  application:
+    name: ferrycatch-api-test
+
+  datasource:
+    url: jdbc:postgresql://172.29.227.0:5432/ferrycatch
+    # if using Testcontainers we can put here a base url bur real values deliver through DynamicPropertySource
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration

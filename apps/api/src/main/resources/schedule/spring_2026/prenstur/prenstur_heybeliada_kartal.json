@@ -1,0 +1,487 @@
+{
+  "operator": "Prenstur",
+  "from": "Heybeliada",
+  "to": "Kartal",
+  "service": {
+    "season": "winter_2026",
+    "validFrom": "2026-02-15",
+    "validTo": null
+  },
+  "tripTemplates": [
+    {
+      "departure": "07:00",
+      "arrival": "07:40",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "07:00"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "07:15"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "07:40"
+        }
+      ]
+    },
+    {
+      "departure": "08:00",
+      "arrival": "08:40",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "08:00"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "08:15"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "08:40"
+        }
+      ]
+    },
+    {
+      "departure": "08:45",
+      "arrival": "09:20",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "08:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "09:00"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "09:20"
+        }
+      ]
+    },
+    {
+      "departure": "09:15",
+      "arrival": "09:55",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "09:15"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "09:30"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "09:55"
+        }
+      ]
+    },
+    {
+      "departure": "09:45",
+      "arrival": "10:25",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "09:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "10:00"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "10:25"
+        }
+      ]
+    },
+    {
+      "departure": "10:10",
+      "arrival": "10:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "10:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "10:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "10:50"
+        }
+      ]
+    },
+    {
+      "departure": "11:10",
+      "arrival": "11:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "11:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "11:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "11:50"
+        }
+      ]
+    },
+    {
+      "departure": "12:10",
+      "arrival": "12:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "12:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "12:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "12:50"
+        }
+      ]
+    },
+    {
+      "departure": "13:10",
+      "arrival": "13:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "13:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "13:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "13:50"
+        }
+      ]
+    },
+    {
+      "departure": "14:10",
+      "arrival": "14:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "14:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "14:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "14:50"
+        }
+      ]
+    },
+    {
+      "departure": "15:10",
+      "arrival": "15:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "15:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "15:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "15:50"
+        }
+      ]
+    },
+    {
+      "departure": "16:15",
+      "arrival": "16:55",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "16:15"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "16:30"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "16:55"
+        }
+      ]
+    },
+    {
+      "departure": "16:45",
+      "arrival": "17:25",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "16:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "17:00"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "17:25"
+        }
+      ]
+    },
+    {
+      "departure": "17:15",
+      "arrival": "17:55",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "17:15"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "17:30"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "17:55"
+        }
+      ]
+    },
+    {
+      "departure": "17:45",
+      "arrival": "18:25",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "17:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "18:00"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "18:25"
+        }
+      ]
+    },
+    {
+      "departure": "18:10",
+      "arrival": "18:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "18:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "18:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "18:50"
+        }
+      ]
+    },
+    {
+      "departure": "19:10",
+      "arrival": "19:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "19:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "19:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "19:50"
+        }
+      ]
+    },
+    {
+      "departure": "20:10",
+      "arrival": "20:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "20:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "20:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "20:50"
+        }
+      ]
+    },
+    {
+      "departure": "21:10",
+      "arrival": "21:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "21:10"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "21:25"
+        },
+        {
+          "seq": 3,
+          "name": "Kartal",
+          "time": "21:50"
+        }
+      ]
+    }
+  ]
+}

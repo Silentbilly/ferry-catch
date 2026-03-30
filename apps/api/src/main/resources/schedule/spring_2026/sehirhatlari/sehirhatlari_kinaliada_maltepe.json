@@ -1,0 +1,427 @@
+{
+  "operator": "Şehir Hatları",
+  "from": "Kınalıada",
+  "to": "Maltepe",
+  "service": {
+    "season": "winter_2026",
+    "validFrom": "2026-02-15",
+    "validTo": null
+  },
+  "tripTemplates": [
+    {
+      "departure": "07:05",
+      "arrival": "08:10",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Kınalıada",
+          "time": "07:05"
+        },
+        {
+          "seq": 2,
+          "name": "Burgazada",
+          "time": "07:20"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "07:35"
+        },
+        {
+          "seq": 4,
+          "name": "Büyükada",
+          "time": "07:50"
+        },
+        {
+          "seq": 5,
+          "name": "Maltepe",
+          "time": "08:10"
+        }
+      ]
+    },
+    {
+      "departure": "08:00",
+      "arrival": "09:05",
+      "flags": {
+        "noSundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Kınalıada",
+          "time": "08:00"
+        },
+        {
+          "seq": 2,
+          "name": "Burgazada",
+          "time": "08:15"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "08:30"
+        },
+        {
+          "seq": 4,
+          "name": "Büyükada",
+          "time": "08:45"
+        },
+        {
+          "seq": 5,
+          "name": "Maltepe",
+          "time": "09:05"
+        }
+      ]
+    },
+    {
+      "departure": "09:15",
+      "arrival": "09:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "09:15"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "09:30"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "09:50"
+        }
+      ]
+    },
+    {
+      "departure": "10:55",
+      "arrival": "11:15",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "10:55"
+        },
+        {
+          "seq": 2,
+          "name": "Maltepe",
+          "time": "11:15"
+        }
+      ]
+    },
+    {
+      "departure": "10:30",
+      "arrival": "11:35",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Kınalıada",
+          "time": "10:30"
+        },
+        {
+          "seq": 2,
+          "name": "Burgazada",
+          "time": "10:45"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "11:00"
+        },
+        {
+          "seq": 4,
+          "name": "Büyükada",
+          "time": "11:15"
+        },
+        {
+          "seq": 5,
+          "name": "Maltepe",
+          "time": "11:35"
+        }
+      ]
+    },
+    {
+      "departure": "12:45",
+      "arrival": "13:20",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "12:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "13:00"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "13:20"
+        }
+      ]
+    },
+    {
+      "departure": "14:00",
+      "arrival": "15:05",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Kınalıada",
+          "time": "14:00"
+        },
+        {
+          "seq": 2,
+          "name": "Burgazada",
+          "time": "14:15"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "14:30"
+        },
+        {
+          "seq": 4,
+          "name": "Büyükada",
+          "time": "14:45"
+        },
+        {
+          "seq": 5,
+          "name": "Maltepe",
+          "time": "15:05"
+        }
+      ]
+    },
+    {
+      "departure": "15:40",
+      "arrival": "16:15",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "15:40"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "15:55"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "16:15"
+        }
+      ]
+    },
+    {
+      "departure": "17:20",
+      "arrival": "17:40",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Büyükada",
+          "time": "17:20"
+        },
+        {
+          "seq": 2,
+          "name": "Maltepe",
+          "time": "17:40"
+        }
+      ]
+    },
+    {
+      "departure": "17:10",
+      "arrival": "18:15",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Kınalıada",
+          "time": "17:10"
+        },
+        {
+          "seq": 2,
+          "name": "Burgazada",
+          "time": "17:25"
+        },
+        {
+          "seq": 3,
+          "name": "Heybeliada",
+          "time": "17:40"
+        },
+        {
+          "seq": 4,
+          "name": "Büyükada",
+          "time": "17:55"
+        },
+        {
+          "seq": 5,
+          "name": "Maltepe",
+          "time": "18:15"
+        }
+      ]
+    },
+    {
+      "departure": "18:30",
+      "arrival": "19:00",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "18:30"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "18:40"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "19:00"
+        }
+      ]
+    },
+    {
+      "departure": "19:15",
+      "arrival": "19:50",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "19:15"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "19:30"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "19:50"
+        }
+      ]
+    },
+    {
+      "departure": "19:45",
+      "arrival": "20:20",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "19:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "20:00"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "20:20"
+        }
+      ]
+    },
+    {
+      "departure": "20:45",
+      "arrival": "21:20",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "20:45"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "21:00"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "21:20"
+        }
+      ]
+    },
+    {
+      "departure": "21:20",
+      "arrival": "21:55",
+      "flags": {
+        "noSundaysAndHolidays": false,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Heybeliada",
+          "time": "21:20"
+        },
+        {
+          "seq": 2,
+          "name": "Büyükada",
+          "time": "21:35"
+        },
+        {
+          "seq": 3,
+          "name": "Maltepe",
+          "time": "21:55"
+        }
+      ]
+    }
+  ]
+}

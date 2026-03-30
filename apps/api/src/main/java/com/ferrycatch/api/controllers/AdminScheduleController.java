@@ -24,7 +24,7 @@ public class AdminScheduleController {
 
     @SneakyThrows
     @PostMapping("/import")
-    public String importSchedule(@RequestParam(defaultValue = "schedule/winter_2026.json") String resource) {
+    public String importSchedule(@RequestParam(defaultValue = "schedule/spring_2026") String resource) {
         importService.importFromClasspath(resource);
         return "OK";
     }

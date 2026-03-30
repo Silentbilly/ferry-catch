@@ -2,6 +2,8 @@ package com.ferrycatch.api.importer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -10,12 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduleImportService {
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectMapper om;
+    private final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
     public ScheduleImportService(NamedParameterJdbcTemplate jdbc, ObjectMapper om) {
         this.jdbc = jdbc;
@@ -24,44 +28,223 @@ public class ScheduleImportService {
 
     @Transactional
     public void importFromClasspath(String resourcePath) throws Exception {
-        ScheduleJson data;
-        try (InputStream in = new ClassPathResource(resourcePath).getInputStream()) {
-            data = om.readValue(in, ScheduleJson.class);
+        String normalizedPath = normalizeResourcePath(resourcePath);
+        List<ResourceWithPath> resources = resolveJsonResources(normalizedPath);
+
+        if (resources.isEmpty()) {
+            throw new IllegalArgumentException("No JSON resources found for path: " + normalizedPath);
         }
 
-        // 1) Clear old templates (child first, then parent)
         jdbc.update("DELETE FROM stop_time_templates", new MapSqlParameterSource());
         jdbc.update("DELETE FROM trip_templates", new MapSqlParameterSource());
 
-        // 2) Import
-        for (var r : data.routes()) {
-            UUID operatorId = upsertOperator(r.operator());
-            UUID routeId = upsertRoute(r.from(), r.to(), operatorId);
+        for (ResourceWithPath resourceWithPath : resources) {
+            importSingleResource(resourceWithPath.resource(), resourceWithPath.path());
+        }
+    }
 
-            for (var t : r.trips()) {
-                // Validate flags
-                boolean noSunHol = t.flags() != null && Boolean.TRUE.equals(t.flags().noSundaysAndHolidays());
-                boolean onlySunHol = t.flags() != null && Boolean.TRUE.equals(t.flags().onlySundaysAndHolidays());
-                if (noSunHol && onlySunHol) {
-                    throw new IllegalArgumentException(
-                            "Trip cannot have both noSundaysAndHolidays=true and onlySundaysAndHolidays=true");
-                }
-                LocalDate activeUntil =
-                        (t.flags() != null && t.flags().activeUntil() != null && !t.flags().activeUntil().isBlank())
-                                ? LocalDate.parse(t.flags().activeUntil())
-                                : null;
+    private void importSingleResource(Resource resource, String logicalPath) throws Exception {
+        ScheduleJson data;
+        try (InputStream in = resource.getInputStream()) {
+            data = om.readValue(in, ScheduleJson.class);
+        }
 
-                // Derive departure/arrival from trip fields
-                LocalTime dep = LocalTime.parse(t.departure());
-                LocalTime arr = LocalTime.parse(t.arrival());
+        if (data == null) {
+            throw new IllegalArgumentException("Schedule file is empty: " + logicalPath);
+        }
 
-                UUID templateId = insertTripTemplate(routeId, dep, arr, noSunHol, onlySunHol, activeUntil);
+        validateRoute(data, logicalPath);
 
-                for (var s : t.stops()) {
-                    insertStopTimeTemplate(templateId, s.seq(), s.name(), LocalTime.parse(s.time()));
-                }
+        UUID operatorId = upsertOperator(data.operator());
+        UUID routeId = upsertRoute(data.from(), data.to(), data.operator(), data.variant(), operatorId);
+
+        for (var t : data.tripTemplates()) {
+            ValidatedTrip vt = validateTrip(data, t, logicalPath);
+
+            UUID templateId = insertTripTemplate(
+                    routeId,
+                    vt.departure(),
+                    vt.arrival(),
+                    vt.noSundaysAndHolidays(),
+                    vt.onlySundaysAndHolidays(),
+                    vt.activeUntil()
+            );
+
+            for (var s : vt.stops()) {
+                insertStopTimeTemplate(templateId, s.seq(), s.name(), s.time());
             }
         }
+    }
+
+    private List<ResourceWithPath> resolveJsonResources(String path) throws Exception {
+        if (path.endsWith(".json")) {
+            ClassPathResource single = new ClassPathResource(path);
+            if (!single.exists()) {
+                throw new IllegalArgumentException("Classpath resource not found: " + path);
+            }
+            return List.of(new ResourceWithPath(single, path));
+        }
+
+        String pattern = "classpath*:" + trimSlashes(path) + "/**/*.json";
+        Resource[] found = resolver.getResources(pattern);
+
+        if (found == null || found.length == 0) {
+            return List.of();
+        }
+
+        return Arrays.stream(found)
+                .filter(Resource::exists)
+                .map(r -> new ResourceWithPath(r, extractLogicalPath(r)))
+                .sorted(Comparator.comparing(ResourceWithPath::path))
+                .collect(Collectors.toList());
+    }
+
+    private String extractLogicalPath(Resource resource) {
+        try {
+            String uri = resource.getURI().toString();
+            int idx = uri.indexOf("/schedule/");
+            if (idx >= 0) {
+                return uri.substring(idx + 1);
+            }
+        } catch (Exception ignored) {
+        }
+
+        try {
+            return resource.getURL().toString();
+        } catch (Exception e) {
+            return resource.getDescription();
+        }
+    }
+
+    private void validateRoute(ScheduleJson route, String logicalPath) {
+        if (isBlank(route.operator())) {
+            throw new IllegalArgumentException("Route operator must not be blank in " + logicalPath);
+        }
+        if (isBlank(route.from())) {
+            throw new IllegalArgumentException("Route from must not be blank in " + logicalPath);
+        }
+        if (isBlank(route.to())) {
+            throw new IllegalArgumentException("Route to must not be blank in " + logicalPath);
+        }
+        if (route.tripTemplates() == null || route.tripTemplates().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Route must contain at least one tripTemplate in " + logicalPath + ": "
+                            + route.operator() + " | " + route.from() + " -> " + route.to()
+            );
+        }
+
+        String normalizedVariant = normalizeVariant(route.variant());
+        if (route.from().equals(route.to()) && normalizedVariant == null) {
+            throw new IllegalArgumentException(
+                    "Loop route must have variant in " + logicalPath + ": "
+                            + route.operator() + " | " + route.from() + " -> " + route.to()
+            );
+        }
+    }
+
+    private ValidatedTrip validateTrip(ScheduleJson route, ScheduleJson.TripJson trip, String logicalPath) {
+        if (trip == null) {
+            throw new IllegalArgumentException(routeLabel(route, logicalPath) + " contains null tripTemplate");
+        }
+
+        boolean noSunHol = trip.flags() != null && Boolean.TRUE.equals(trip.flags().noSundaysAndHolidays());
+        boolean onlySunHol = trip.flags() != null && Boolean.TRUE.equals(trip.flags().onlySundaysAndHolidays());
+        if (noSunHol && onlySunHol) {
+            throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                    + " trip cannot have both noSundaysAndHolidays=true and onlySundaysAndHolidays=true");
+        }
+
+        LocalDate activeUntil =
+                (trip.flags() != null && !isBlank(trip.flags().activeUntil()))
+                        ? LocalDate.parse(trip.flags().activeUntil().trim())
+                        : null;
+
+        LocalTime departure = parseRequiredTime(trip.departure(), routeLabel(route, logicalPath) + " trip departure");
+        LocalTime arrival = parseRequiredTime(trip.arrival(), routeLabel(route, logicalPath) + " trip arrival");
+
+        if (trip.stops() == null || trip.stops().isEmpty()) {
+            throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                    + " trip " + departure + " -> " + arrival + " must contain at least one stop");
+        }
+
+        List<ValidatedStop> stops = new ArrayList<>();
+        Set<Integer> seenSeq = new HashSet<>();
+        Integer prevSeq = null;
+
+        for (var s : trip.stops()) {
+            if (s == null) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " trip " + departure + " -> " + arrival + " contains null stop");
+            }
+            if (s.seq() <= 0) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " trip " + departure + " -> " + arrival + " has non-positive seq: " + s.seq());
+            }
+            if (!seenSeq.add(s.seq())) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " trip " + departure + " -> " + arrival + " has duplicate seq: " + s.seq());
+            }
+            if (prevSeq != null && s.seq() <= prevSeq) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " trip " + departure + " -> " + arrival + " has non-increasing seq order at: " + s.seq());
+            }
+            if (isBlank(s.name())) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " trip " + departure + " -> " + arrival + " has blank stop name at seq " + s.seq());
+            }
+
+            LocalTime stopTime = parseRequiredTime(
+                    s.time(),
+                    routeLabel(route, logicalPath) + " trip " + departure + " -> " + arrival + " stop time for seq "
+                            + s.seq()
+            );
+
+            stops.add(new ValidatedStop(s.seq(), s.name().trim(), stopTime));
+            prevSeq = s.seq();
+        }
+
+        boolean loopRoute = route.from().equals(route.to());
+
+        if (loopRoute) {
+            LocalTime firstStopTime = stops.get(0).time();
+            LocalTime lastStopTime = stops.get(stops.size() - 1).time();
+
+            if (!departure.equals(firstStopTime)) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " loop trip departure " + departure
+                        + " must equal first stop time " + firstStopTime);
+            }
+
+            if (!arrival.equals(lastStopTime)) {
+                throw new IllegalArgumentException(routeLabel(route, logicalPath)
+                        + " loop trip arrival " + arrival
+                        + " must equal last stop time " + lastStopTime);
+            }
+        }
+        return new ValidatedTrip(
+                departure,
+                arrival,
+                noSunHol,
+                onlySunHol,
+                activeUntil,
+                stops
+        );
+    }
+
+    private int indexOfStop(List<ValidatedStop> stops, String stopName) {
+        for (int i = 0; i < stops.size(); i++) {
+            if (stops.get(i).name().equals(stopName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private LocalTime parseRequiredTime(String value, String label) {
+        if (isBlank(value)) {
+            throw new IllegalArgumentException(label + " must not be blank");
+        }
+        return LocalTime.parse(value.trim());
     }
 
     private UUID upsertOperator(String name) {
@@ -79,39 +262,114 @@ public class ScheduleImportService {
         );
     }
 
-    private UUID upsertRoute(String from, String to, UUID operatorId) {
+    private UUID upsertRoute(String from, String to, String operator, String variant, UUID operatorId) {
+        String normalizedVariant = normalizeVariant(variant);
+
+        if (from.equals(to) && normalizedVariant == null) {
+            throw new IllegalArgumentException(
+                    "Loop route must have variant: " + operator + " | " + from + " -> " + to
+            );
+        }
+
+        UUID existingId = findRouteId(from, to, operatorId, normalizedVariant);
+        if (existingId != null) {
+            return existingId;
+        }
+
         jdbc.update(
                 """
-                        INSERT INTO routes("from","to",operator_id)
-                        VALUES (:from,:to,:op)
-                        ON CONFLICT ("from","to",operator_id) DO NOTHING
-                        """,
+                INSERT INTO routes("from","to",operator_id,variant)
+                VALUES (:from,:to,:op,:variant)
+                """,
                 new MapSqlParameterSource()
                         .addValue("from", from)
                         .addValue("to", to)
                         .addValue("op", operatorId)
+                        .addValue("variant", normalizedVariant)
         );
-        return jdbc.query(
-                """
-                        SELECT id FROM routes
-                        WHERE "from"=:from AND "to"=:to AND operator_id=:op
-                        """,
-                new MapSqlParameterSource()
-                        .addValue("from", from)
-                        .addValue("to", to)
-                        .addValue("op", operatorId),
-                rs -> {
-                    rs.next();
-                    return UUID.fromString(rs.getString("id"));
-                }
-        );
+
+        UUID insertedId = findRouteId(from, to, operatorId, normalizedVariant);
+        if (insertedId == null) {
+            throw new IllegalStateException(
+                    "Failed to resolve route after insert: " + operator + " | " + from + " -> " + to
+                            + (normalizedVariant != null ? " [" + normalizedVariant + "]" : "")
+            );
+        }
+
+        return insertedId;
     }
 
-    private UUID insertTripTemplate(UUID routeId, LocalTime dep, LocalTime arr, boolean noSunHol, boolean onlySunHol,
-                                    LocalDate activeUntil) {
+    private UUID findRouteId(String from, String to, UUID operatorId, String normalizedVariant) {
+        List<UUID> ids;
+
+        if (normalizedVariant == null) {
+            ids = jdbc.query(
+                    """
+                    SELECT id
+                    FROM routes
+                    WHERE "from" = :from
+                      AND "to" = :to
+                      AND operator_id = :op
+                      AND variant IS NULL
+                    """,
+                    new MapSqlParameterSource()
+                            .addValue("from", from)
+                            .addValue("to", to)
+                            .addValue("op", operatorId),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("id"))
+            );
+        } else {
+            ids = jdbc.query(
+                    """
+                    SELECT id
+                    FROM routes
+                    WHERE "from" = :from
+                      AND "to" = :to
+                      AND operator_id = :op
+                      AND variant = :variant
+                    """,
+                    new MapSqlParameterSource()
+                            .addValue("from", from)
+                            .addValue("to", to)
+                            .addValue("op", operatorId)
+                            .addValue("variant", normalizedVariant),
+                    (rs, rowNum) -> UUID.fromString(rs.getString("id"))
+            );
+        }
+
+        if (ids.isEmpty()) {
+            return null;
+        }
+        if (ids.size() > 1) {
+            throw new IllegalStateException(
+                    "Multiple routes found for from=" + from
+                            + ", to=" + to
+                            + ", operatorId=" + operatorId
+                            + ", variant=" + normalizedVariant
+            );
+        }
+        return ids.get(0);
+    }
+
+    private String normalizeVariant(String variant) {
+        if (variant == null) return null;
+        String v = variant.trim();
+        return v.isEmpty() ? null : v;
+    }
+
+    private UUID insertTripTemplate(UUID routeId, LocalTime dep, LocalTime arr,
+                                    boolean noSunHol, boolean onlySunHol, LocalDate activeUntil) {
         return jdbc.query(
                 """
-                        INSERT INTO trip_templates(route_id, departure_local, arrival_local, no_sundays_and_holidays, only_sundays_and_holidays, active_until, active_from)
+                        INSERT INTO trip_templates(
+                            route_id,
+                            departure_local,
+                            arrival_local,
+                            no_sundays_and_holidays,
+                            only_sundays_and_holidays,
+                            active_until,
+                            active_from
+                        )
                         VALUES (:routeId, :dep, :arr, :noSunHol, :onlySunHol, :activeUntil, NULL)
                         RETURNING id
                         """,
@@ -141,5 +399,53 @@ public class ScheduleImportService {
                         .addValue("name", name)
                         .addValue("time", time)
         );
+    }
+
+    private String routeLabel(ScheduleJson route, String logicalPath) {
+        return logicalPath + " :: "
+                + route.operator() + " | " + route.from() + " -> " + route.to()
+                + (normalizeVariant(route.variant()) != null ? " [" + normalizeVariant(route.variant()) + "]" : "");
+    }
+
+    private String normalizeResourcePath(String resourcePath) {
+        if (isBlank(resourcePath)) {
+            throw new IllegalArgumentException("resourcePath must not be blank");
+        }
+        return trimSlashes(resourcePath.trim());
+    }
+
+    private String trimSlashes(String value) {
+        String result = value;
+        while (result.startsWith("/")) {
+            result = result.substring(1);
+        }
+        while (result.endsWith("/")) {
+            result = result.substring(0, result.length() - 1);
+        }
+        return result;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private record ResourceWithPath(Resource resource, String path) {
+    }
+
+    private record ValidatedTrip(
+            LocalTime departure,
+            LocalTime arrival,
+            boolean noSundaysAndHolidays,
+            boolean onlySundaysAndHolidays,
+            LocalDate activeUntil,
+            List<ValidatedStop> stops
+    ) {
+    }
+
+    private record ValidatedStop(
+            int seq,
+            String name,
+            LocalTime time
+    ) {
     }
 }
