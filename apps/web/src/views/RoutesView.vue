@@ -161,11 +161,6 @@ function applyFavorite(f: FavoriteRoute) {
       <h1 class="h1">Istanbul Ferries (Islands)</h1>
     </header>
 
-    <div class="notice" role="status" aria-live="polite">
-      EN: Schedules are being updated. Schedule information may be inaccurate..
-      <br />
-      TR: Tarifeler güncelleniyor. Sefer bilgileri hatalı olabilir.
-    </div>
     <p v-if="loadingStops">Loading stops…</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
