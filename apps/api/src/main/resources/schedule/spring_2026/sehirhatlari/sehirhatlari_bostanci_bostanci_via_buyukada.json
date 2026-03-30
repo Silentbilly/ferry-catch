@@ -133,19 +133,6 @@
         { "name": "Kınalıada", "seq": 5, "time": "19:55" },
         { "name": "Bostancı", "seq": 6, "time": "20:20" }
       ]
-    },
-    {
-      "departure": "00:00",
-      "arrival": "01:45",
-      "flags": { "activeUntil": null, "noSundaysAndHolidays": false },
-      "stops": [
-        { "name": "Bostancı", "seq": 1, "time": "00:00" },
-        { "name": "Büyükada", "seq": 2, "time": "00:35" },
-        { "name": "Heybeliada", "seq": 3, "time": "00:50" },
-        { "name": "Burgazada", "seq": 4, "time": "01:05" },
-        { "name": "Kınalıada", "seq": 5, "time": "01:20" },
-        { "name": "Bostancı", "seq": 6, "time": "01:45" }
-      ]
     }
   ]
 }
