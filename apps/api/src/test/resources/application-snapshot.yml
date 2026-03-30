@@ -1,0 +1,5 @@
+ferrycatch:
+  snapshot:
+    prod-base-url: https://ferrynow.app
+    date: 2026-03-11
+    output-dir: src/test/resources/snapshots

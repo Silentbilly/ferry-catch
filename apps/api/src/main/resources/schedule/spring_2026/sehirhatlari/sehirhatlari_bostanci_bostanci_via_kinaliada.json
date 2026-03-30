@@ -1,0 +1,248 @@
+{
+  "operator": "Şehir Hatları",
+  "from": "Bostancı",
+  "to": "Bostancı",
+  "variant": "via Kınalıada",
+  "service": {
+    "season": "spring_2026",
+    "validFrom": "2026-03-30",
+    "validTo": "2026-05-31"
+  },
+  "tripTemplates": [
+    {
+      "arrival": "03:45",
+      "departure": "02:00",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Bostancı",
+          "seq": 1,
+          "time": "02:00"
+        },
+        {
+          "name": "Kınalıada",
+          "seq": 2,
+          "time": "02:25"
+        },
+        {
+          "name": "Burgazada",
+          "seq": 3,
+          "time": "02:40"
+        },
+        {
+          "name": "Heybeliada",
+          "seq": 4,
+          "time": "02:55"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 5,
+          "time": "03:10"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 6,
+          "time": "03:45"
+        }
+      ]
+    },
+    {
+      "arrival": "06:30",
+      "departure": "04:45",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Bostancı",
+          "seq": 1,
+          "time": "04:45"
+        },
+        {
+          "name": "Kınalıada",
+          "seq": 2,
+          "time": "05:10"
+        },
+        {
+          "name": "Burgazada",
+          "seq": 3,
+          "time": "05:25"
+        },
+        {
+          "name": "Heybeliada",
+          "seq": 4,
+          "time": "05:40"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 5,
+          "time": "05:55"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 6,
+          "time": "06:30"
+        }
+      ]
+    },
+    {
+      "arrival": "08:50",
+      "departure": "08:35",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Heybeliada",
+          "seq": 1,
+          "time": "08:35"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 2,
+          "time": "08:50"
+        }
+      ]
+    },
+    {
+      "arrival": "09:35",
+      "departure": "08:20",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Bostancı",
+          "seq": 1,
+          "time": "08:20"
+        },
+        {
+          "name": "Kınalıada",
+          "seq": 2,
+          "time": "08:45"
+        },
+        {
+          "name": "Burgazada",
+          "seq": 3,
+          "time": "09:00"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 4,
+          "time": "09:35"
+        }
+      ]
+    },
+    {
+      "arrival": "16:55",
+      "departure": "15:10",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Bostancı",
+          "seq": 1,
+          "time": "15:10"
+        },
+        {
+          "name": "Kınalıada",
+          "seq": 2,
+          "time": "15:35"
+        },
+        {
+          "name": "Burgazada",
+          "seq": 3,
+          "time": "15:50"
+        },
+        {
+          "name": "Heybeliada",
+          "seq": 4,
+          "time": "16:05"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 5,
+          "time": "16:20"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 6,
+          "time": "16:55"
+        }
+      ]
+    },
+    {
+      "arrival": "18:20",
+      "departure": "17:30",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Heybeliada",
+          "seq": 1,
+          "time": "17:30"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 2,
+          "time": "17:45"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 3,
+          "time": "18:20"
+        }
+      ]
+    },
+    {
+      "arrival": "23:30",
+      "departure": "21:45",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        {
+          "name": "Bostancı",
+          "seq": 1,
+          "time": "21:45"
+        },
+        {
+          "name": "Kınalıada",
+          "seq": 2,
+          "time": "22:10"
+        },
+        {
+          "name": "Burgazada",
+          "seq": 3,
+          "time": "22:25"
+        },
+        {
+          "name": "Heybeliada",
+          "seq": 4,
+          "time": "22:40"
+        },
+        {
+          "name": "Büyükada",
+          "seq": 5,
+          "time": "22:55"
+        },
+        {
+          "name": "Bostancı",
+          "seq": 6,
+          "time": "23:30"
+        }
+      ]
+    }
+  ]
+}

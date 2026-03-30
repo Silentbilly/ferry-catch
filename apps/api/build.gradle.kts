@@ -39,3 +39,14 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("runProdSnapshotDownloader") {
+    group = "tools"
+    description = "Downloads prod snapshots into src/test/resources/snapshots"
+
+    dependsOn("classes")
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.ferrycatch.api.tools.ProdSnapshotDownloader")
+
+    systemProperties(System.getProperties() as Map<String, Any>)
+}

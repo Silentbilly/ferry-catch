@@ -1,7 +1,6 @@
 package com.ferrycatch.api.controllers;
 
 import com.ferrycatch.api.dto.FerryDtos.TripDto;
-import com.ferrycatch.api.service.MockScheduleService;
 import com.ferrycatch.api.service.TimetableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
