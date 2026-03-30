@@ -161,6 +161,11 @@ function applyFavorite(f: FavoriteRoute) {
       <h1 class="h1">Istanbul Ferries (Islands)</h1>
     </header>
 
+    <div class="notice" role="status" aria-live="polite">
+      EN: Schedules are being updated. Schedule information may be inaccurate..
+      <br />
+      TR: Tarifeler güncelleniyor. Sefer bilgileri hatalı olabilir.
+    </div>
     <p v-if="loadingStops">Loading stops…</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
@@ -649,5 +654,24 @@ details[open] .seoSummary::before {
 
 .favBtn--active {
   color: #f59e0b;
+}
+
+.notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fffbeb;
+  border: 1px solid #facc15;
+  color: #5b4a00;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.notice b {
+  color: #3f3200;
+}
+
+.notice div + div {
+  margin-top: 4px;
 }
 </style>
