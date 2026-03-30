@@ -1,0 +1,152 @@
+{
+  "operator": "Şehir Hatları",
+  "from": "Beşiktaş",
+  "to": "Büyükada",
+  "service": {
+    "season": "winter_2026",
+    "validFrom": "2026-02-15",
+    "validTo": null
+  },
+  "tripTemplates": [
+    {
+      "departure": "08:10",
+      "arrival": "09:45",
+      "flags": {
+        "onlySundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Beşiktaş",
+          "time": "08:10"
+        },
+        {
+          "seq": 2,
+          "name": "Kınalıada",
+          "time": "09:00"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "09:15"
+        },
+        {
+          "seq": 4,
+          "name": "Heybeliada",
+          "time": "09:30"
+        },
+        {
+          "seq": 5,
+          "name": "Büyükada",
+          "time": "09:45"
+        }
+      ]
+    },
+    {
+      "departure": "13:00",
+      "arrival": "14:35",
+      "flags": {
+        "onlySundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Beşiktaş",
+          "time": "13:00"
+        },
+        {
+          "seq": 2,
+          "name": "Kınalıada",
+          "time": "13:50"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "14:05"
+        },
+        {
+          "seq": 4,
+          "name": "Heybeliada",
+          "time": "14:20"
+        },
+        {
+          "seq": 5,
+          "name": "Büyükada",
+          "time": "14:35"
+        }
+      ]
+    },
+    {
+      "departure": "15:15",
+      "arrival": "16:50",
+      "flags": {
+        "onlySundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Beşiktaş",
+          "time": "15:15"
+        },
+        {
+          "seq": 2,
+          "name": "Kınalıada",
+          "time": "16:05"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "16:20"
+        },
+        {
+          "seq": 4,
+          "name": "Heybeliada",
+          "time": "16:35"
+        },
+        {
+          "seq": 5,
+          "name": "Büyükada",
+          "time": "16:50"
+        }
+      ]
+    },
+    {
+      "departure": "18:15",
+      "arrival": "19:50",
+      "flags": {
+        "onlySundaysAndHolidays": true,
+        "activeUntil": null
+      },
+      "stops": [
+        {
+          "seq": 1,
+          "name": "Beşiktaş",
+          "time": "18:15"
+        },
+        {
+          "seq": 2,
+          "name": "Kınalıada",
+          "time": "19:05"
+        },
+        {
+          "seq": 3,
+          "name": "Burgazada",
+          "time": "19:20"
+        },
+        {
+          "seq": 4,
+          "name": "Heybeliada",
+          "time": "19:35"
+        },
+        {
+          "seq": 5,
+          "name": "Büyükada",
+          "time": "19:50"
+        }
+      ]
+    }
+  ]
+}

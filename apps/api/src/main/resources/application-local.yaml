@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  application:
+    name: ferrycatch-api-local
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ferrycatch
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+logging:
+  level:
+    root: INFO
+    com.ferrycatch: DEBUG
