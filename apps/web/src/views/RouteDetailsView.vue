@@ -5,9 +5,14 @@ import type { TimetableResponse, SearchResponse, TripDto } from "../api/types";
 import { getUpcomingTimetable, searchNext } from "../api";
 import { ApiError } from "../api/client";
 import { formatHHmm, formatYYYYMMDD, timeUntil } from "../helpers/dateFormat";
+import { getLocale, messages, normalizeLang } from "../i18n";
 
 const route = useRoute();
 const router = useRouter();
+
+const lang = computed(() => normalizeLang(route.params.lang));
+const locale = computed(() => getLocale(lang.value));
+const t = computed(() => messages[lang.value]);
 
 const from = computed(() => String(route.query.from ?? ""));
 const to = computed(() => String(route.query.to ?? ""));
@@ -35,13 +40,25 @@ function upcomingQuery() {
 function getStopsNumber(trip: TripDto): string {
   const stopsCount = Math.max(0, trip.stops.length - 2);
 
-  if (stopsCount === 0) return " Direct";
-  return ` ${stopsCount} ${stopsCount === 1 ? "stop" : "stops"}`;
+  if (stopsCount === 0) return t.value.direct;
+  if (stopsCount === 1) return `1 ${t.value.stop}`;
+  return `${stopsCount} ${t.value.stops}`;
 }
 
 function goBack() {
-  if (window.history.length > 1) router.back();
-  else router.push({ name: "routes" });
+  if (window.history.length > 1) {
+    router.back();
+    return;
+  }
+
+  router.push({
+    name: "routes",
+    params: { lang: lang.value },
+    query: {
+      from: from.value,
+      to: to.value,
+    },
+  });
 }
 
 async function load() {
@@ -67,7 +84,7 @@ async function load() {
     } else if (e instanceof Error) {
       error.value = e.message;
     } else {
-      error.value = "Failed to load data";
+      error.value = t.value.failedToLoadData;
     }
 
     nextData.value = null;
@@ -78,7 +95,7 @@ async function load() {
 }
 
 watch(
-  () => [route.query.from, route.query.to, route.query.operator],
+  () => [route.query.from, route.query.to, route.query.operator, route.params.lang],
   () => {
     void load();
   },
@@ -91,22 +108,28 @@ watch(
     <header class="header">
       <h1 class="h1">{{ from }} → {{ to }}</h1>
       <button class="ghostBtn backBtn" type="button" @click="goBack">
-        ← Back
+        {{ t.back }}
       </button>
     </header>
 
-    <p v-if="loading" class="muted">Loading…</p>
+    <p v-if="loading" class="muted">{{ t.loading }}</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
     <section v-else class="stack">
       <section class="card">
-        <h2 class="h2">Next ferry</h2>
+        <h2 class="h2">{{ t.nextFerry }}</h2>
 
         <div v-if="nextData" class="stack">
-          <div><b>In:</b> {{ timeUntil(nextData.trip.departureTime) }}</div>
-          <div><b>Dep:</b> {{ formatHHmm(nextData.trip.departureTime) }}</div>
-          <div><b>Arr:</b> {{ formatHHmm(nextData.trip.arrivalTime) }}</div>
-          <div><b>Operator:</b> {{ nextData.trip.operator }}</div>
+          <div><b>{{ t.in }}</b> {{ timeUntil(nextData.trip.departureTime, lang) }}</div>
+          <div>
+            <b>{{ t.dep }}</b>
+            {{ formatHHmm(nextData.trip.departureTime, "local", locale) }}
+          </div>
+          <div>
+            <b>{{ t.arr }}</b>
+            {{ formatHHmm(nextData.trip.arrivalTime, "local", locale) }}
+          </div>
+          <div><b>{{ t.operator }}</b> {{ nextData.trip.operator }}</div>
 
           <ol class="list">
             <li
@@ -114,27 +137,27 @@ watch(
               :key="s.sequence"
               class="listItem"
             >
-              {{ s.stopName }} — {{ formatHHmm(s.time) }}
+              {{ s.stopName }} — {{ formatHHmm(s.time, "local", locale) }}
             </li>
           </ol>
         </div>
       </section>
 
       <section class="card">
-        <h2 class="h2">Timetable</h2>
+        <h2 class="h2">{{ t.timetable }}</h2>
 
         <div v-if="timetable" class="grid">
-          <div v-for="t in timetable.trips" :key="t.tripId" class="ttItem">
+          <div v-for="trip in timetable.trips" :key="trip.tripId" class="ttItem">
             <div class="ttTime">
-              {{ formatHHmm(t.departureTime) }} →
-              {{ formatHHmm(t.arrivalTime) }}
+              {{ formatHHmm(trip.departureTime, "local", locale) }} →
+              {{ formatHHmm(trip.arrivalTime, "local", locale) }}
             </div>
             <div class="ttMeta">
-              {{ formatYYYYMMDD(t.departureTime) }} · in
-              {{ timeUntil(t.departureTime) }} ·
-              {{ getStopsNumber(t).trim() }}
+              {{ formatYYYYMMDD(trip.departureTime) }} · {{ t.inSmall }}
+              {{ timeUntil(trip.departureTime, lang) }} ·
+              {{ getStopsNumber(trip) }}
             </div>
-            <div class="ttOp">{{ t.operator }}</div>
+            <div class="ttOp">{{ trip.operator }}</div>
           </div>
         </div>
       </section>
@@ -146,12 +169,6 @@ watch(
 .backBtn {
   white-space: nowrap;
   padding: 8px 10px;
-}
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .page {
@@ -233,20 +250,20 @@ watch(
 .muted {
   opacity: 0.75;
 }
+
 .error {
   color: #dc2626;
 }
 
-/* Lists */
 .list {
   margin: 10px 0 0;
   padding-left: 18px;
 }
+
 .listItem {
   margin: 6px 0;
 }
 
-/* Timetable grid */
 .grid {
   display: grid;
   gap: 12px;
@@ -263,51 +280,17 @@ watch(
   font-weight: 800;
   color: #353e55;
 }
+
 .ttMeta {
   opacity: 0.75;
   font-size: 13px;
   margin-top: 2px;
 }
+
 .ttOp {
   opacity: 0.7;
   font-size: 13px;
   margin-top: 4px;
-}
-
-.primaryBtn {
-  width: 100%;
-  padding: 12px 12px;
-  border-radius: 12px;
-  background: #0891b2;
-  border: 1px solid #0891b2;
-  color: #fff;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 0.02s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.primaryBtn:hover:not(:disabled) {
-  background: #0e7490;
-  border-color: #0e7490;
-}
-.primaryBtn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-.primaryBtn:focus-visible {
-  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.35);
-}
-
-.primaryBtn:disabled {
-  background: rgba(8, 145, 178, 0.35);
-  border-color: rgba(8, 145, 178, 0.2);
-  color: #97a3bc;
-  box-shadow: none;
-  opacity: 1;
-  cursor: not-allowed;
 }
 
 .ghostBtn {
@@ -328,6 +311,7 @@ watch(
   background: rgba(57, 194, 215, 0.08);
   border-color: rgba(57, 194, 215, 0.85);
 }
+
 .ghostBtn:focus-visible {
   outline: 2px solid rgba(57, 194, 215, 0.85);
   outline-offset: 2px;
