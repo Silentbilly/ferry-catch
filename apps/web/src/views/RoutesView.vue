@@ -218,6 +218,7 @@ function applyFavorite(f: FavoriteRoute) {
             type="button"
             class="langBtn"
             :class="{ 'langBtn--active': lang === item.code }"
+            :aria-pressed="lang === item.code"
             @click="switchLanguage(item.code)"
           >
             {{ item.label }}

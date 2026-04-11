@@ -3,6 +3,8 @@ import RoutesView from "./views/RoutesView.vue";
 import RouteDetailsView from "./views/RouteDetailsView.vue";
 import { normalizeLang } from "./i18n";
 
+const LANG_KEY = "ferry-lang";
+
 export const routes: RouteRecordRaw[] = [
   {
     path: "/:lang(en|tr|ru)?",
@@ -26,28 +28,32 @@ const router = createRouter({
   routes,
 });
 
-const LANG_KEY = "ferry-lang";
-
 router.beforeEach((to) => {
-  const routeLang = to.params.lang;
+  const routeLang =
+    typeof to.params.lang === "string" ? normalizeLang(to.params.lang) : null;
+
+  if (routeLang) {
+    localStorage.setItem(LANG_KEY, routeLang);
+    return true;
+  }
+
   const savedLangRaw = localStorage.getItem(LANG_KEY);
   const savedLang = savedLangRaw ? normalizeLang(savedLangRaw) : "en";
 
-  if (!routeLang && savedLang !== "en") {
-    return {
-      name: to.name ?? "routes",
-      params: {
-        ...to.params,
-        lang: savedLang,
-      },
-      query: to.query,
-      hash: to.hash,
-    };
+  if (savedLang === "en") {
+    return true;
   }
 
-  if (routeLang) {
-    localStorage.setItem(LANG_KEY, normalizeLang(routeLang));
-  }
+  return {
+    name: to.name || "routes",
+    params: {
+      ...to.params,
+      lang: savedLang,
+    },
+    query: to.query,
+    hash: to.hash,
+    replace: true,
+  };
 });
 
 export default router;
