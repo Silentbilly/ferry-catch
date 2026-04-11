@@ -37,8 +37,12 @@ const languageOptions: Array<{ code: Lang; label: string }> = [
   { code: "ru", label: "RU" },
 ];
 
+const LANG_KEY = "ferry-lang";
+
 function switchLanguage(nextLang: Lang) {
   if (nextLang === lang.value) return;
+
+  localStorage.setItem(LANG_KEY, nextLang);
 
   router.push({
     name: (route.name as string) || "routes",
