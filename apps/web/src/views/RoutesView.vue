@@ -117,7 +117,6 @@ function swapStops() {
 }
 const FAVORITES_KEY = "ferry-favorites";
 const LAST_ROUTE_KEY = "ferry-last-route";
-const LANG_KEY = "ferry-lang";
 
 const favorites = ref<FavoriteRoute[]>([]);
 
@@ -152,26 +151,6 @@ onMounted(() => {
       localStorage.removeItem(LAST_ROUTE_KEY);
     }
   }
-
-  const routeLang = route.params.lang;
-  const savedLangRaw = localStorage.getItem(LANG_KEY);
-  const savedLang = savedLangRaw ? normalizeLang(savedLangRaw) : "en";
-
-  if (!routeLang && savedLang !== "en") {
-    router.replace({
-      name: (route.name as string) || "routes",
-      params: {
-        ...route.params,
-        lang: savedLang,
-      },
-      query: route.query,
-    });
-    return;
-  }
-
-  if (routeLang) {
-    localStorage.setItem(LANG_KEY, lang.value);
-  }
 });
 
 watch(
@@ -180,14 +159,6 @@ watch(
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(val));
   },
   { deep: true },
-);
-
-watch(
-  () => lang.value,
-  (value) => {
-    localStorage.setItem(LANG_KEY, value);
-  },
-  { immediate: true },
 );
 
 watch(
@@ -475,9 +446,13 @@ function applyFavorite(f: FavoriteRoute) {
   outline-offset: 2px;
 }
 
-.langBtn--active {
-  background: #0891b2;
-  color: #ffffff;
+.langBtn--active,
+.langBtn--active:hover,
+.langBtn--active:focus,
+.langBtn--active:focus-visible,
+.langBtn--active:active {
+  background: #eef6fb;
+  color: #0e7490;
   box-shadow: 0 1px 2px rgba(8, 145, 178, 0.28);
 }
 
