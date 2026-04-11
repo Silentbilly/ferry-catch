@@ -7,9 +7,16 @@ import { ApiError } from "../api/client";
 import { listStops, searchNext } from "../api";
 import type { SearchResponse } from "../api/types";
 import { slugify } from "../helpers/slugify";
+import { messages, normalizeLang, getLocale, type Lang } from "../i18n";
+
+type FavoriteRoute = { from: string; to: string };
 
 const router = useRouter();
 const route = useRoute();
+
+const lang = computed<Lang>(() => normalizeLang(route.params.lang));
+const t = computed(() => messages[lang.value]);
+const locale = computed(() => getLocale(lang.value));
 
 const stops = ref<string[]>([]);
 const from = ref<string>(String(route.query.from ?? ""));
@@ -24,6 +31,25 @@ const canSearch = computed(
   () => from.value && to.value && from.value !== to.value,
 );
 
+const languageOptions: Array<{ code: Lang; label: string }> = [
+  { code: "en", label: "EN" },
+  { code: "tr", label: "TR" },
+  { code: "ru", label: "RU" },
+];
+
+function switchLanguage(nextLang: Lang) {
+  if (nextLang === lang.value) return;
+
+  router.push({
+    name: (route.name as string) || "routes",
+    params: {
+      ...route.params,
+      lang: nextLang,
+    },
+    query: route.query,
+  });
+}
+
 async function loadStops() {
   loadingStops.value = true;
   error.value = null;
@@ -33,7 +59,7 @@ async function loadStops() {
     if (e instanceof ApiError)
       error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
     else if (e instanceof Error) error.value = e.message;
-    else error.value = "Failed to load stops";
+    else error.value = t.value.failedToLoadStops;
   } finally {
     loadingStops.value = false;
   }
@@ -51,18 +77,19 @@ async function doSearch() {
     });
     result.value = res;
 
-    const lang = String(route.params.lang || "en");
-
     router.replace({
       name: "routes-with-slug",
       params: {
-        lang,
+        lang: lang.value,
         fromSlug: slugify(from.value),
         toSlug: slugify(to.value),
       },
       query: { from: from.value, to: to.value },
     });
   } catch (e: unknown) {
+    if (e instanceof ApiError)
+      error.value = e.status ? `${e.message} (HTTP ${e.status})` : e.message;
+    else if (e instanceof Error) error.value = e.message;
   } finally {
     loadingSearch.value = false;
   }
@@ -70,12 +97,11 @@ async function doSearch() {
 
 function openDetails() {
   if (!from.value || !to.value) return;
-  const lang = String(route.params.lang || "en");
 
   router.push({
     name: "route-details",
     params: {
-      lang,
+      lang: lang.value,
       fromSlug: slugify(from.value),
       toSlug: slugify(to.value),
     },
@@ -89,21 +115,9 @@ function swapStops() {
   from.value = to.value;
   to.value = oldFrom;
 }
-
-onMounted(loadStops);
-
-// если юзер пришёл по ссылке с query — попробуем сразу искать
-watch(
-  () => [from.value, to.value],
-  () => {
-    result.value = null;
-  },
-);
-
-// Favorite routes
-type FavoriteRoute = { from: string; to: string };
-
 const FAVORITES_KEY = "ferry-favorites";
+const LAST_ROUTE_KEY = "ferry-last-route";
+const LANG_KEY = "ferry-lang";
 
 const favorites = ref<FavoriteRoute[]>([]);
 
@@ -112,26 +126,88 @@ const currentIsFavorite = computed(
     !!favorites.value.find((f) => f.from === from.value && f.to === to.value),
 );
 
-// загрузка из localStorage
 onMounted(() => {
-  loadStops(); // уже есть
-  const raw = localStorage.getItem(FAVORITES_KEY);
-  if (raw) {
+  loadStops();
+
+  const rawFavorites = localStorage.getItem(FAVORITES_KEY);
+  if (rawFavorites) {
     try {
-      favorites.value = JSON.parse(raw);
+      favorites.value = JSON.parse(rawFavorites);
     } catch {
       favorites.value = [];
     }
   }
+
+  const rawLastRoute = localStorage.getItem(LAST_ROUTE_KEY);
+  if (rawLastRoute && !route.query.from && !route.query.to) {
+    try {
+      const parsed = JSON.parse(rawLastRoute) as {
+        from?: string;
+        to?: string;
+      };
+
+      if (parsed.from) from.value = parsed.from;
+      if (parsed.to) to.value = parsed.to;
+    } catch {
+      localStorage.removeItem(LAST_ROUTE_KEY);
+    }
+  }
+
+  const routeLang = route.params.lang;
+  const savedLangRaw = localStorage.getItem(LANG_KEY);
+  const savedLang = savedLangRaw ? normalizeLang(savedLangRaw) : "en";
+
+  if (!routeLang && savedLang !== "en") {
+    router.replace({
+      name: (route.name as string) || "routes",
+      params: {
+        ...route.params,
+        lang: savedLang,
+      },
+      query: route.query,
+    });
+    return;
+  }
+
+  if (routeLang) {
+    localStorage.setItem(LANG_KEY, lang.value);
+  }
 });
 
-// автосохранение
 watch(
   favorites,
   (val) => {
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(val));
   },
   { deep: true },
+);
+
+watch(
+  () => lang.value,
+  (value) => {
+    localStorage.setItem(LANG_KEY, value);
+  },
+  { immediate: true },
+);
+
+watch(
+  () => [from.value, to.value],
+  ([newFrom, newTo]) => {
+    result.value = null;
+
+    if (!newFrom && !newTo) {
+      localStorage.removeItem(LAST_ROUTE_KEY);
+      return;
+    }
+
+    localStorage.setItem(
+      LAST_ROUTE_KEY,
+      JSON.stringify({
+        from: newFrom,
+        to: newTo,
+      }),
+    );
+  },
 );
 
 function toggleFavorite() {
@@ -157,15 +233,33 @@ function applyFavorite(f: FavoriteRoute) {
 <template>
   <main class="page">
     <header class="header">
-      <img class="logoTop" :src="logoUrl" alt="Catch a Ferry" />
-      <h1 class="h1">Istanbul Ferries (Islands)</h1>
+      <div class="logoRow">
+        <img class="logoTop" :src="logoUrl" alt="Catch a Ferry" />
+      </div>
+
+      <div class="titleRow">
+        <h1 class="h1">{{ t.pageTitle }}</h1>
+
+        <div class="langSwitch" aria-label="Language switcher">
+          <button
+            v-for="item in languageOptions"
+            :key="item.code"
+            type="button"
+            class="langBtn"
+            :class="{ 'langBtn--active': lang === item.code }"
+            @click="switchLanguage(item.code)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </div>
     </header>
 
-    <p v-if="loadingStops">Loading stops…</p>
+    <p v-if="loadingStops">{{ t.loadingStops }}</p>
     <p v-else-if="error" class="error">{{ error }}</p>
 
     <section class="card">
-      <h2 class="h2">Route</h2>
+      <h2 class="h2">{{ t.route }}</h2>
 
       <div v-if="favorites.length" class="favChips">
         <button
@@ -179,9 +273,9 @@ function applyFavorite(f: FavoriteRoute) {
         </button>
       </div>
 
-      <label class="label" for="from-stop">From</label>
+      <label class="label" for="from-stop">{{ t.from }}</label>
       <select id="from-stop" name="from-stop" v-model="from" class="select">
-        <option value="">Select…</option>
+        <option value="">{{ t.selectPlaceholder }}</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
@@ -197,9 +291,11 @@ function applyFavorite(f: FavoriteRoute) {
         </button>
       </div>
 
-      <label class="label" for="to-stop" style="margin-top: 10px">To</label>
+      <label class="label" for="to-stop" style="margin-top: 10px">
+        {{ t.to }}
+      </label>
       <select id="to-stop" name="to-stop" v-model="to" class="select">
-        <option value="">Select…</option>
+        <option value="">{{ t.selectPlaceholder }}</option>
         <option v-for="s in stops" :key="s" :value="s">{{ s }}</option>
       </select>
 
@@ -209,22 +305,32 @@ function applyFavorite(f: FavoriteRoute) {
         :disabled="!canSearch || loadingSearch"
         style="margin-top: 12px"
       >
-        {{ loadingSearch ? "Searching…" : "Find next" }}
+        {{ loadingSearch ? t.searching : t.findNext }}
       </button>
     </section>
 
     <section v-if="result" class="card" style="margin-top: 12px">
       <div class="cardHead">
-        <h2 class="h2 cardHead__title">Next Ferry</h2>
+        <h2 class="h2 cardHead__title">{{ t.nextFerry }}</h2>
         <button class="ghostBtn cardHead__more" @click="openDetails">
-          More →
+          {{ t.more }}
         </button>
       </div>
 
-      <div><b>In:</b> {{ timeUntil(result.trip.departureTime) }}</div>
-      <div><b>Dep:</b> {{ formatHHmm(result.trip.departureTime) }}</div>
-      <div><b>Arr:</b> {{ formatHHmm(result.trip.arrivalTime) }}</div>
-      <div><b>Operator:</b> {{ result.trip.operator }}</div>
+      <div>
+        <b>{{ t.in }}</b> {{ timeUntil(result.trip.departureTime, lang) }}
+      </div>
+      <div>
+        <b>{{ t.dep }}</b>
+        {{ formatHHmm(result.trip.departureTime, "local", locale) }}
+      </div>
+      <div>
+        <b>{{ t.arr }}</b>
+        {{ formatHHmm(result.trip.arrivalTime, "local", locale) }}
+      </div>
+      <div>
+        <b>{{ t.operator }}</b> {{ result.trip.operator }}
+      </div>
 
       <ol style="margin: 10px 0 0; padding-left: 18px">
         <li
@@ -232,13 +338,14 @@ function applyFavorite(f: FavoriteRoute) {
           :key="s.sequence"
           style="margin: 6px 0"
         >
-          {{ s.stopName }} — {{ formatHHmm(s.time) }}
+          {{ s.stopName }} —
+          {{ formatHHmm(s.time, "local", locale) }}
         </li>
       </ol>
     </section>
 
     <section class="card" style="margin-top: 12px">
-      <h2 class="h2">Wind map</h2>
+      <h2 class="h2">{{ t.windMap }}</h2>
 
       <div class="windyWrap" style="margin-top: 10px">
         <iframe
@@ -248,55 +355,39 @@ function applyFavorite(f: FavoriteRoute) {
         ></iframe>
       </div>
     </section>
+
     <section class="card seo-text">
       <details>
-        <summary class="seoSummary">More about ferries & schedule</summary>
+        <summary class="seoSummary">{{ t.moreAbout }}</summary>
         <div class="seoBody">
-          <p>
-            If you are looking for an Istanbul to Princes' Islands ferry
-            (Adalar), here you can quickly see the next departures from ports
-            like Kabataş, Kadıköy, Beşiktaş, Bostancı, Maltepe and Kartal.
-          </p>
-          <p>
-            Ferries to Adalar (Princes' Islands) run throughout the day, and
-            this Istanbul ferries schedule helps you find the next departure
-            without checking multiple websites.
-          </p>
-          <p>
-            Each operator uses its own pier, so always check the information
-            boards and ask on site to make sure the ferry you need departs from
-            that pier and arrives at the correct island.
-          </p>
-          <p>
-            Here you can quickly check the Istanbul ferries schedule for your
-            route: departure and arrival times, intermediate stops and
-            operators, then open full details for a specific sailing when you
-            need more information.
-          </p>
+          <p>{{ t.seo.paragraph1 }}</p>
+          <p>{{ t.seo.paragraph2 }}</p>
+          <p>{{ t.seo.paragraph3 }}</p>
+          <p>{{ t.seo.paragraph4 }}</p>
           <p class="seoNotice">
-            In case of strong wind or adverse weather conditions, ferry
-            operators may cancel or change departures and routes, so always
-            double-check the latest notices on official operator websites such
-            as
+            {{ t.seo.paragraph5 }}
+            {{ t.seo.operatorsPrefix }}
             <a
               href="https://www.sehirhatlari.istanbul"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
             >
               Şehir Hatları </a
-            >,
+            >{{ t.seo.operatorsSeparator }}
             <a
               href="https://www.mavimarmara.net"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
             >
-              Mavi Marmara
-            </a>
-            or
-            <a href="https://www.prenstur.net" target="_blank" rel="noopener">
-              Prenstur
-            </a>
-            before you travel.
+              Mavi Marmara </a
+            >{{ t.seo.operatorsLastSeparator }}
+            <a
+              href="https://www.prenstur.net"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Prenstur </a
+            >.
           </p>
         </div>
       </details>
@@ -321,23 +412,77 @@ function applyFavorite(f: FavoriteRoute) {
 }
 
 .header {
-  position: relative;
-  padding-top: 44px;
-  display: block;
+  margin-bottom: 8px;
+}
+
+.logoRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .logoTop {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
   height: 50px;
   width: auto;
   display: block;
 }
 
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.langSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dbe3ea;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.langBtn {
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.langBtn:hover {
+  background: #eef6fb;
+  color: #0e7490;
+}
+
+.langBtn:focus-visible {
+  outline: 2px solid rgba(8, 145, 178, 0.45);
+  outline-offset: 2px;
+}
+
+.langBtn--active {
+  background: #0891b2;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(8, 145, 178, 0.28);
+}
+
 .h1 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 21px;
   line-height: 1.1;
   font-weight: 700;
@@ -345,6 +490,8 @@ function applyFavorite(f: FavoriteRoute) {
   color: #30384f;
   position: relative;
   padding-bottom: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .h1::after {
@@ -353,7 +500,7 @@ function applyFavorite(f: FavoriteRoute) {
   width: 56px;
   height: 4px;
   border-radius: 999px;
-  background: #0891b2; /* primary */
+  background: #0891b2;
   margin-top: 10px;
 }
 
@@ -415,7 +562,6 @@ function applyFavorite(f: FavoriteRoute) {
   margin-top: 0px;
 }
 
-/* Inputs */
 .select {
   width: 100%;
   padding: 10px 10px;
@@ -434,22 +580,18 @@ function applyFavorite(f: FavoriteRoute) {
   border-color: #9ca3af;
 }
 
-/* Keep select focus dark (no blue/cyan ring) */
 .select:focus-visible {
   border-color: #111827;
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.18);
 }
 
-/* Primary button */
 .primaryBtn {
   width: 100%;
   padding: 12px 12px;
   border-radius: 12px;
-
   background: #0891b2;
   border: 1px solid #0891b2;
   color: #fff;
-
   font-weight: 800;
   cursor: pointer;
   transition:
@@ -463,6 +605,7 @@ function applyFavorite(f: FavoriteRoute) {
   background: #0e7490;
   border-color: #0e7490;
 }
+
 .primaryBtn:active:not(:disabled) {
   transform: translateY(1px);
 }
@@ -480,7 +623,6 @@ function applyFavorite(f: FavoriteRoute) {
   cursor: not-allowed;
 }
 
-/* Ghost button */
 .ghostBtn {
   border: 1px solid rgba(57, 194, 215, 0.55);
   background: #fff;
@@ -528,7 +670,6 @@ function applyFavorite(f: FavoriteRoute) {
   color: #dc2626;
 }
 
-/* Windy embed */
 .windyWrap {
   position: relative;
   width: 100%;
@@ -578,12 +719,15 @@ details[open] .seoSummary::before {
 .seo-text p {
   margin: 8px 0;
 }
+
 .seo-text p:first-child {
   margin-top: 0;
 }
+
 .seo-text p:last-child {
   margin-bottom: 0;
 }
+
 .seoNotice {
   margin: 10px 0 0;
   padding: 8px 10px;
@@ -592,7 +736,6 @@ details[open] .seoSummary::before {
   border: 1px solid #facc15;
 }
 
-/* Favorite routes */
 .favChips {
   display: flex;
   flex-wrap: wrap;
@@ -668,5 +811,27 @@ details[open] .seoSummary::before {
 
 .notice div + div {
   margin-top: 4px;
+}
+
+@media (max-width: 420px) {
+  .logoTop {
+    height: 44px;
+  }
+
+  .titleRow {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .langSwitch {
+    margin-top: 2px;
+  }
+
+  .langBtn {
+    min-width: 36px;
+    height: 30px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
 }
 </style>

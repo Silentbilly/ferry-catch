@@ -1,42 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
 >
   <url>
     <loc>https://ferrynow.app/</loc>
-    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru" />
   </url>
+
   <url>
     <loc>https://ferrynow.app/en</loc>
-    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru" />
   </url>
+
   <url>
     <loc>https://ferrynow.app/tr</loc>
-    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru" />
   </url>
+
   <url>
     <loc>https://ferrynow.app/ru</loc>
-    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru" />
   </url>
 
   <url>
     <loc>https://ferrynow.app/en/ferry/kabatas-buyukada</loc>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kabatas-buyukada" />
   </url>
+
+  <url>
+    <loc>https://ferrynow.app/tr/ferry/kabatas-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kabatas-buyukada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/ru/ferry/kabatas-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kabatas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kabatas-buyukada" />
+  </url>
+
   <url>
     <loc>https://ferrynow.app/en/ferry/besiktas-buyukada</loc>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/besiktas-buyukada" />
   </url>
+
+  <url>
+    <loc>https://ferrynow.app/tr/ferry/besiktas-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/besiktas-buyukada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/ru/ferry/besiktas-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/besiktas-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/besiktas-buyukada" />
+  </url>
+
   <url>
     <loc>https://ferrynow.app/en/ferry/kadikoy-buyukada</loc>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kadikoy-buyukada" />
   </url>
+
+  <url>
+    <loc>https://ferrynow.app/tr/ferry/kadikoy-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kadikoy-buyukada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/ru/ferry/kadikoy-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/kadikoy-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/kadikoy-buyukada" />
+  </url>
+
   <url>
     <loc>https://ferrynow.app/en/ferry/bostanci-kinaliada</loc>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-kinaliada" />
   </url>
+
+  <url>
+    <loc>https://ferrynow.app/tr/ferry/bostanci-kinaliada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-kinaliada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/ru/ferry/bostanci-kinaliada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-kinaliada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-kinaliada" />
+  </url>
+
   <url>
     <loc>https://ferrynow.app/en/ferry/bostanci-buyukada</loc>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-buyukada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/tr/ferry/bostanci-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-buyukada" />
+  </url>
+
+  <url>
+    <loc>https://ferrynow.app/ru/ferry/bostanci-buyukada</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://ferrynow.app/en/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://ferrynow.app/tr/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://ferrynow.app/ru/ferry/bostanci-buyukada" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferrynow.app/ferry/bostanci-buyukada" />
   </url>
 </urlset>
