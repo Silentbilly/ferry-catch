@@ -10,11 +10,11 @@
   },
   "tripTemplates": [
     {
-      "arrival": "03:45",
       "departure": "02:00",
+      "arrival": "03:45",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -50,11 +50,11 @@
       ]
     },
     {
-      "arrival": "06:30",
       "departure": "04:45",
+      "arrival": "06:30",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -90,11 +90,11 @@
       ]
     },
     {
-      "arrival": "08:50",
       "departure": "08:35",
+      "arrival": "08:50",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -110,11 +110,11 @@
       ]
     },
     {
-      "arrival": "09:35",
       "departure": "08:20",
+      "arrival": "09:35",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -140,11 +140,11 @@
       ]
     },
     {
-      "arrival": "16:55",
       "departure": "15:10",
+      "arrival": "16:55",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -180,11 +180,11 @@
       ]
     },
     {
-      "arrival": "18:20",
       "departure": "17:30",
+      "arrival": "18:20",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
@@ -205,11 +205,11 @@
       ]
     },
     {
-      "arrival": "23:30",
       "departure": "21:45",
+      "arrival": "23:30",
       "flags": {
         "activeUntil": null,
-        "onlySundaysAndHolidays": true
+        "onlySundaysAndHolidays": false
       },
       "stops": [
         {
