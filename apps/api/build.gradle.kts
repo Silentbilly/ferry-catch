@@ -50,3 +50,13 @@ tasks.register<JavaExec>("runProdSnapshotDownloader") {
 
     systemProperties(System.getProperties() as Map<String, Any>)
 }
+
+tasks.test {
+    useJUnitPlatform {
+        includeTags("unit")
+    }
+
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
+}

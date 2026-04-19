@@ -1,4 +1,4 @@
-package com.ferrycatch.api.testcontrollers;
+package com.ferrycatch.api.integration.support;
 
 import com.ferrycatch.api.dto.FerryDtos;
 import com.ferrycatch.api.service.RouteService;
