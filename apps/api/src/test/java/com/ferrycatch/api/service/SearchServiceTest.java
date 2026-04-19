@@ -5,6 +5,8 @@ import com.ferrycatch.api.db.record.TripSegmentRow;
 import com.ferrycatch.api.db.repo.SearchRepository;
 import com.ferrycatch.api.db.repo.StopTimeRepository;
 import com.ferrycatch.api.dto.FerryDtos;
+import com.ferrycatch.api.service.SearchService;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@Tag("unit")
 class SearchServiceTest {
 
     @Mock

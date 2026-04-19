@@ -1,4 +1,4 @@
-package com.ferrycatch.api.config;
+package com.ferrycatch.api.integration.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
