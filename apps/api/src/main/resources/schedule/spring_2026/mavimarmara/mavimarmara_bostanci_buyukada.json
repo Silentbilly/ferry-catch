@@ -14,18 +14,18 @@
       "flags": { "noSundaysAndHolidays": true, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "07:10" },
-        { "seq": 2, "name": "Heybeliada", "time": "07:40" },
-        { "seq": 3, "name": "Büyükada", "time": "07:55" }
+        { "seq": 2, "name": "Heybeliada", "time": "07:45" },
+        { "seq": 3, "name": "Büyükada", "time": "08:00" }
       ]
     },
     {
       "departure": "08:00",
-      "arrival": "08:45",
+      "arrival": "08:50",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "08:00" },
-        { "seq": 2, "name": "Heybeliada", "time": "08:30" },
-        { "seq": 3, "name": "Büyükada", "time": "08:45" }
+        { "seq": 2, "name": "Heybeliada", "time": "08:35" },
+        { "seq": 3, "name": "Büyükada", "time": "08:50" }
       ]
     },
     {
@@ -50,12 +50,12 @@
     },
     {
       "departure": "11:30",
-      "arrival": "12:15",
+      "arrival": "12:20",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "11:30" },
-        { "seq": 2, "name": "Heybeliada", "time": "12:00" },
-        { "seq": 3, "name": "Büyükada", "time": "12:15" }
+        { "seq": 2, "name": "Heybeliada", "time": "12:05" },
+        { "seq": 3, "name": "Büyükada", "time": "12:20" }
       ]
     },
     {
@@ -90,12 +90,12 @@
     },
     {
       "departure": "15:30",
-      "arrival": "16:15",
+      "arrival": "16:20",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "15:30" },
-        { "seq": 2, "name": "Heybeliada", "time": "16:00" },
-        { "seq": 3, "name": "Büyükada", "time": "16:15" }
+        { "seq": 2, "name": "Heybeliada", "time": "16:05" },
+        { "seq": 3, "name": "Büyükada", "time": "16:20" }
       ]
     },
     {
@@ -110,12 +110,12 @@
     },
     {
       "departure": "17:30",
-      "arrival": "18:15",
+      "arrival": "18:20",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "17:30" },
-        { "seq": 2, "name": "Heybeliada", "time": "18:00" },
-        { "seq": 3, "name": "Büyükada", "time": "18:15" }
+        { "seq": 2, "name": "Heybeliada", "time": "18:05" },
+        { "seq": 3, "name": "Büyükada", "time": "18:20" }
       ]
     },
     {
@@ -140,12 +140,12 @@
     },
     {
       "departure": "21:00",
-      "arrival": "21:45",
+      "arrival": "21:50",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "21:00" },
-        { "seq": 2, "name": "Heybeliada", "time": "21:30" },
-        { "seq": 3, "name": "Büyükada", "time": "21:45" }
+        { "seq": 2, "name": "Heybeliada", "time": "21:35" },
+        { "seq": 3, "name": "Büyükada", "time": "21:50" }
       ]
     },
     {
@@ -160,12 +160,12 @@
     },
     {
       "departure": "23:00",
-      "arrival": "23:45",
+      "arrival": "23:50",
       "flags": { "noSundaysAndHolidays": false, "activeUntil": null },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "23:00" },
-        { "seq": 2, "name": "Heybeliada", "time": "23:30" },
-        { "seq": 3, "name": "Büyükada", "time": "23:45" }
+        { "seq": 2, "name": "Heybeliada", "time": "23:35" },
+        { "seq": 3, "name": "Büyükada", "time": "23:50" }
       ]
     }
   ]
