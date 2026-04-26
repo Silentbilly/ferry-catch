@@ -10,20 +10,20 @@
   "tripTemplates": [
     {
       "departure": "07:10",
-      "arrival": "07:35",
+      "arrival": "08:00",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": true
       },
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "07:10" },
-        { "seq": 2, "name": "Burgazada", "time": "07:25" },
-        { "seq": 3, "name": "Kınalıada", "time": "07:35" }
+        { "seq": 2, "name": "Burgazada", "time": "07:45" },
+        { "seq": 3, "name": "Kınalıada", "time": "08:00" }
       ]
     },
     {
       "departure": "08:05",
-      "arrival": "08:35",
+      "arrival": "08:45",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -31,12 +31,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "08:05" },
         { "seq": 2, "name": "Kınalıada", "time": "08:30" },
-        { "seq": 3, "name": "Burgazada", "time": "08:40" }
+        { "seq": 3, "name": "Burgazada", "time": "08:45" }
       ]
     },
     {
       "departure": "09:05",
-      "arrival": "09:35",
+      "arrival": "09:45",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -44,12 +44,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "09:05" },
         { "seq": 2, "name": "Kınalıada", "time": "09:30" },
-        { "seq": 3, "name": "Burgazada", "time": "09:40" }
+        { "seq": 3, "name": "Burgazada", "time": "09:45" }
       ]
     },
     {
       "departure": "10:30",
-      "arrival": "11:00",
+      "arrival": "11:10",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -57,12 +57,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "10:30" },
         { "seq": 2, "name": "Kınalıada", "time": "10:55" },
-        { "seq": 3, "name": "Burgazada", "time": "11:05" }
+        { "seq": 3, "name": "Burgazada", "time": "11:10" }
       ]
     },
     {
       "departure": "12:00",
-      "arrival": "12:30",
+      "arrival": "12:40",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -70,12 +70,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "12:00" },
         { "seq": 2, "name": "Kınalıada", "time": "12:25" },
-        { "seq": 3, "name": "Burgazada", "time": "12:35" }
+        { "seq": 3, "name": "Burgazada", "time": "12:40" }
       ]
     },
     {
       "departure": "14:30",
-      "arrival": "15:00",
+      "arrival": "15:10",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -83,25 +83,38 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "14:30" },
         { "seq": 2, "name": "Kınalıada", "time": "14:55" },
-        { "seq": 3, "name": "Burgazada", "time": "15:05" }
+        { "seq": 3, "name": "Burgazada", "time": "15:10" }
       ]
     },
     {
-      "departure": "16:05",
-      "arrival": "16:35",
+      "departure": "15:45",
+      "arrival": "16:20",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
       },
       "stops": [
-        { "seq": 1, "name": "Bostancı", "time": "16:05" },
-        { "seq": 2, "name": "Kınalıada", "time": "16:30" },
-        { "seq": 3, "name": "Burgazada", "time": "16:40" }
+        { "seq": 1, "name": "Bostancı", "time": "15:45" },
+        { "seq": 2, "name": "Kınalıada", "time": "16:05" },
+        { "seq": 3, "name": "Burgazada", "time": "16:20" }
       ]
     },
     {
+      "departure": "16:45",
+      "arrival": "17:20",
+      "flags": {
+        "activeUntil": null,
+        "noSundaysAndHolidays": false
+      },
+      "stops": [
+        { "seq": 1, "name": "Bostancı", "time": "16:45" },
+        { "seq": 2, "name": "Kınalıada", "time": "17:05" },
+        { "seq": 3, "name": "Burgazada", "time": "17:20" }
+      ]
+    },    
+    {
       "departure": "17:35",
-      "arrival": "18:05",
+      "arrival": "18:15",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -109,12 +122,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "17:35" },
         { "seq": 2, "name": "Kınalıada", "time": "18:00" },
-        { "seq": 3, "name": "Burgazada", "time": "18:10" }
+        { "seq": 3, "name": "Burgazada", "time": "18:15" }
       ]
     },
     {
       "departure": "18:25",
-      "arrival": "18:55",
+      "arrival": "19:05",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -122,12 +135,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "18:25" },
         { "seq": 2, "name": "Kınalıada", "time": "18:50" },
-        { "seq": 3, "name": "Burgazada", "time": "19:00" }
+        { "seq": 3, "name": "Burgazada", "time": "19:05" }
       ]
     },
     {
       "departure": "19:40",
-      "arrival": "20:10",
+      "arrival": "20:20",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -135,12 +148,12 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "19:40" },
         { "seq": 2, "name": "Kınalıada", "time": "20:05" },
-        { "seq": 3, "name": "Burgazada", "time": "20:15" }
+        { "seq": 3, "name": "Burgazada", "time": "20:20" }
       ]
     },
     {
       "departure": "21:05",
-      "arrival": "21:35",
+      "arrival": "21:45",
       "flags": {
         "activeUntil": null,
         "noSundaysAndHolidays": false
@@ -148,7 +161,33 @@
       "stops": [
         { "seq": 1, "name": "Bostancı", "time": "21:05" },
         { "seq": 2, "name": "Kınalıada", "time": "21:30" },
-        { "seq": 3, "name": "Burgazada", "time": "21:40" }
+        { "seq": 3, "name": "Burgazada", "time": "21:45" }
+      ]
+    },
+    {
+      "departure": "22:05",
+      "arrival": "22:45",
+      "flags": {
+        "activeUntil": null,
+        "onlySundaysAndHolidays": true
+      },
+      "stops": [
+        { "seq": 1, "name": "Bostancı", "time": "22:05" },
+        { "seq": 2, "name": "Kınalıada", "time": "22:30" },
+        { "seq": 3, "name": "Burgazada", "time": "22:45" }
+      ]
+    },
+    {
+      "departure": "23:00",
+      "arrival": "22:45",
+      "flags": {
+        "activeUntil": null,
+        "noSundaysAndHolidays": false
+      },
+      "stops": [
+        { "seq": 1, "name": "Bostancı", "time": "23:00" },
+        { "seq": 2, "name": "Kınalıada", "time": "23:25" },
+        { "seq": 3, "name": "Burgazada", "time": "22:40" }
       ]
     }
   ]
