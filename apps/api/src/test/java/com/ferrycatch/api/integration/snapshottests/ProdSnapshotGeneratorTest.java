@@ -1,9 +1,10 @@
-package com.ferrycatch.api.intergration;
+package com.ferrycatch.api.integration.snapshottests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.ferrycatch.api.config.SnapshotProperties;
-import com.ferrycatch.api.config.SnapshotTestConfig;
+import com.ferrycatch.api.integration.config.SnapshotProperties;
+import com.ferrycatch.api.integration.config.SnapshotTestConfig;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import java.util.Optional;
         "ferrycatch.snapshot.date=2026-03-11",
         "ferrycatch.snapshot.output-dir=src/test/resources/snapshots"
 })
+@Tag("integration")
 class ProdSnapshotGeneratorTest {
 
     @Autowired
